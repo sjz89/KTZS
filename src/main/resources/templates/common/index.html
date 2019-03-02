@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>课堂助手</title>
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/assets/style/admin.css" media="all">
+</head>
+<body class="layui-layout-body" layadmin-themealias="default">
+<div id="LAY_app">
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header">
+            <!-- 头部区域 -->
+            <ul class="layui-nav layui-layout-left">
+                <li class="layui-nav-item layadmin-flexible" lay-unselect="">
+                    <a href="javascript:;" layadmin-event="flexible" title="">
+                        <i class="layui-icon layui-icon-shrink-right" id="LAY_app_flexible"></i>
+                    </a>
+                </li>
+                <li class="layui-nav-item" lay-unselect="">
+                    <a href="javascript:;" layadmin-event="refresh" title="刷新">
+                        <i class="layui-icon layui-icon-refresh-3"></i>
+                    </a>
+                </li>
+            </ul>
+            <ul class="layui-nav layui-layout-right" lay-filter="layadmin-layout-right">
+                <li class="layui-nav-item" lay-unselect="" style="">
+                    <a lay-href="app/message/index.html" layadmin-event="message" lay-text="消息中心">
+                        <i class="layui-icon layui-icon-notice"></i>
+
+                        <!-- 如果有新消息，则显示小圆点 -->
+                        <span class="layui-badge-dot"></span>
+                    </a>
+                </li>
+                <li class="layui-nav-item layui-hide-xs" lay-unselect>
+                    <a href="javascript:;" layadmin-event="theme">
+                        <i class="layui-icon layui-icon-theme"></i>
+                    </a>
+                </li>
+                <li class="layui-nav-item layui-hide-xs" lay-unselect="" style="">
+                    <a href="javascript:;" layadmin-event="note">
+                        <i class="layui-icon layui-icon-note"></i>
+                    </a>
+                </li>
+                <li class="layui-nav-item layui-hide-xs" lay-unselect="" style="">
+                    <a href="javascript:;" layadmin-event="fullscreen">
+                        <i class="layui-icon layui-icon-screen-full"></i>
+                    </a>
+                </li>
+                <li class="layui-nav-item" lay-unselect="">
+                    <a><cite th:text="${user.name}"></cite>
+                        <span class="layui-nav-more"></span></a>
+                    <dl class="layui-nav-child layui-anim layui-anim-upbit">
+                        <dd style="text-align: center;"><a lay-href="/user/page/info">基本资料</a></dd>
+                        <dd style="text-align: center;"><a lay-href="/user/page/changePwd">修改密码</a></dd>
+                        <hr>
+                        <dd layadmin-event="logout" style="text-align: center;"><a>退出</a></dd>
+                    </dl>
+                </li>
+
+                <li class="layui-nav-item layui-hide-xs" lay-unselect="" style="">
+                    <a layadmin-event="about"><i class="layui-icon layui-icon-more-vertical"></i></a>
+                </li>
+                <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-unselect="">
+                    <a layadmin-event="more"><i class="layui-icon layui-icon-more-vertical"></i></a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="layui-side layui-side-menu">
+            <div class="layui-side-scroll">
+                <div class="layui-logo" lay-href="/home">
+                    <span>课堂智能助手</span>
+                </div>
+
+                <ul class="layui-nav layui-nav-tree" lay-shrink="all" id="LAY-system-side-menu" lay-filter="layadmin-system-side-menu">
+                    <li data-name="home" class="layui-nav-item layui-nav-itemed layui-this">
+                        <a lay-tips="主页" lay-href="/home" lay-direction="2">
+                            <i class="layui-icon layui-icon-home"></i>
+                            <cite>主页</cite>
+                        </a>
+                    </li>
+                    <li data-name="majorManage" class="layui-nav-item">
+                        <a lay-tips="专业管理" lay-direction="2">
+                            <i class="layui-icon layui-icon-read"></i>
+                            <cite>专业管理</cite>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd data-name="console">
+                                <a lay-href="/major/page/majorManage">专业管理</a>
+                            </dd>
+                        </dl>
+                        <dl class="layui-nav-child">
+                            <dd data-name="console">
+                                <a lay-href="/major/page/userMajorManage">用户专业管理</a>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li data-name="courseManage" class="layui-nav-item">
+                        <a lay-tips="课程管理" lay-direction="2">
+                            <i class="layui-icon layui-icon-read"></i>
+                            <cite>课程管理</cite>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd data-name="console">
+                                <a lay-href="/course/page/courseManage">课程管理</a>
+                            </dd>
+                        </dl>
+                        <dl class="layui-nav-child">
+                            <dd data-name="console">
+                                <a lay-href="/course/page/courseStudentManage">课程选课学生管理</a>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li data-name="rbac" class="layui-nav-item">
+                        <a lay-tips="用户权限管理" lay-direction="2">
+                            <i class="layui-icon layui-icon-user"></i>
+                            <cite>用户权限管理</cite>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd data-name="console">
+                                <a lay-href="/authority/page/userManage">用户管理</a>
+                            </dd>
+                        </dl>
+                        <dl class="layui-nav-child">
+                            <dd data-name="console">
+                                <a lay-href="/authority/page/roleManage">角色管理</a>
+                            </dd>
+                        </dl>
+                        <dl class="layui-nav-child">
+                            <dd data-name="console">
+                                <a lay-href="/authority/page/authManage">权限管理</a>
+                            </dd>
+                        </dl>
+                    </li>
+                    <li data-name="rbac" class="layui-nav-item">
+                        <a lay-tips="接口文档" lay-direction="2" lay-href="/authority/page/apiList">
+                            <i class="layui-icon layui-icon-form"></i>
+                            <cite>接口文档</cite>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="layadmin-pagetabs" id="LAY_app_tabs">
+            <div class="layui-icon layadmin-tabs-control layui-icon-prev" layadmin-event="leftPage"></div>
+            <div class="layui-icon layadmin-tabs-control layui-icon-next" layadmin-event="rightPage"></div>
+            <div class="layui-icon layadmin-tabs-control layui-icon-down">
+                <ul class="layui-nav layadmin-tabs-select" lay-filter="layadmin-pagetabs-nav">
+                    <li class="layui-nav-item" lay-unselect="" style="">
+                        <a href="javascript:;"><span class="layui-nav-more"></span></a>
+                        <dl class="layui-nav-child layui-anim-fadein layui-anim layui-anim-upbit">
+                            <dd layadmin-event="closeThisTabs"><a>关闭当前标签页</a></dd>
+                            <dd layadmin-event="closeOtherTabs"><a>关闭其它标签页</a></dd>
+                            <dd layadmin-event="closeAllTabs"><a>关闭全部标签页</a></dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+            <div class="layui-tab" lay-unauto="" lay-allowclose="true" lay-filter="layadmin-layout-tabs">
+                <ul class="layui-tab-title" id="LAY_app_tabsheader">
+                    <li lay-id="/home" lay-attr="/home" class="layui-this" style=""><i class="layui-icon layui-icon-home"></i><i class="layui-icon layui-unselect layui-tab-close">ဆ</i></li>
+                </ul>
+            </div>
+        </div>
+        <div class="layui-body" id="LAY_app_body">
+            <div class="layadmin-tabsbody-item layui-show">
+                <iframe src="/home" frameborder="0" class="layadmin-iframe"></iframe>
+            </div>
+        </div>
+        <div class="layadmin-body-shade" layadmin-event="shade"></div>
+    </div>
+</div>
+<script src="/static/assets/layui/layui.js"></script>
+<script>
+    layui.config({
+        base: '/static/assets/' //静态资源所在路径
+    }).extend({
+        index: 'lib/index' //主入口模块
+    }).use('index');
+</script>
+</body>
+</html>

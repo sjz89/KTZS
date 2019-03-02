@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    username: root
+    password: Super9689
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/ktzs?useSSL=false&characterEncoding=utf-8&serverTimezone=Hongkong
+    name: ktzs
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+    servlet:
+      content-type: text/html
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    open-in-view: true
+  redis:
+    host: localhost
+    port: 6379
+  session:
+    store-type: redis
+    timeout: 1800

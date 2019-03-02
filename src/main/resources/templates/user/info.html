@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户信息</title>
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/assets/style/admin.css" media="all">
+</head>
+<body layadmin-themealias="default">
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">我的资料</div>
+                <div class="layui-card-body">
+                    <form class="layui-form layui-form-pane">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">用户角色</label>
+                            <div class="layui-input-inline">
+                                <input th:value="${user.role.name}" name="role" class="layui-input"
+                                       style="background-color: rgb(250, 255, 189);"
+                                       type="text" readonly="" webkit-autofilled="rgb(250, 255, 189)">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label" th:text="${user.role.name.equals('student')?'学号':'工号'}"></label>
+                            <div class="layui-input-inline">
+                                <input th:value="${user.idNumber}" name="idNumber" class="layui-input"
+                                       style="background-color: rgb(250, 255, 189);"
+                                       type="text" readonly="" webkit-autofilled="rgb(250, 255, 189)">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">姓名</label>
+                            <div class="layui-input-inline">
+                                <input th:value="${user.name}" name="name" class="layui-input" type="text"
+                                       placeholder="请输入姓名"
+                                       autocomplete="off" lay-verify="name">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">手机</label>
+                            <div class="layui-input-inline">
+                                <input th:value="${user.phone}" name="phone" class="layui-input" type="text" value=""
+                                       autocomplete="off"
+                                       lay-verify="phone">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <button class="layui-btn" lay-filter="changeInfo" lay-submit>确认修改</button>
+                                <button class="layui-btn layui-btn-primary" type="reset">重新填写</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/assets/layui/layui.js"></script>
+<script src="/static/js/notice.js"></script>
+<script src="/static/js/ajax.js"></script>
+<script>
+    layui.use(['form','jquery'],function () {
+        var form=layui.form;
+
+        form.on('submit(changeInfo)',function (data) {
+            var user={
+                name:data.field.name,
+                phone:data.field.phone
+            };
+            ajax_post_json('/user/changeInfo',JSON.stringify(user),function (res) {
+                if (res.code===200)
+                    notice_success("信息修改成功");
+                else
+                    notice_error(res.msg);
+            });
+            return false;
+        })
+    })
+</script>
+</body>
+</html>

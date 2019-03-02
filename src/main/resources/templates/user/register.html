@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>注册</title>
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css">
+    <link rel="stylesheet" href="/static/assets/style/admin.css">
+    <link rel="stylesheet" href="/static/assets/style/login.css">
+</head>
+<body>
+<div class="layadmin-user-login layadmin-user-display-show" id="LAY-user-register" style="display: none;">
+    <div class="layadmin-user-login-main">
+        <div class="layadmin-user-login-box layadmin-user-login-header">
+            <h2>layuiAdmin</h2>
+            <p>layui 官方出品的单页面后台管理模板系统</p>
+        </div>
+        <div class="layadmin-user-login-box layadmin-user-login-body layui-form">
+            <div class="layui-form-item">
+                <label class="layadmin-user-login-icon layui-icon layui-icon-cellphone" for="LAY-user-register-id"></label>
+                <input type="text" name="idNumber" id="LAY-user-register-id" placeholder="学号/工号" class="layui-input">
+            </div>
+            <div class="layui-form-item">
+                <label class="layadmin-user-login-icon layui-icon layui-icon-username" for="LAY-user-register-name"></label>
+                <input type="text" name="name" id="LAY-user-register-name" lay-verify="name" placeholder="姓名" class="layui-input">
+            </div>
+            <div class="layui-form-item">
+                <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-register-password"></label>
+                <input type="password" name="password" id="LAY-user-register-password" lay-verify="pass" placeholder="密码" class="layui-input">
+            </div>
+            <div class="layui-form-item">
+                <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-register-repass"></label>
+                <input type="password" name="repass" id="LAY-user-register-repass" lay-verify="required" placeholder="确认密码" class="layui-input">
+            </div>
+            <div class="layui-form-item">
+                <label class="layadmin-user-login-icon layui-icon layui-icon-form" for="LAY-user-register-role"></label>
+                <select name="role" id="LAY-user-register-role" lay-verify="required" lay-search="" lay-filter="role" class="layui-input" >
+                    <option value="">请选择或输入角色</option>
+                    <option th:each="role:${roleList}" th:if="${role.name!='admin'}" th:value="${role.id}" th:text="${role.name}"></option>
+                </select>
+            </div>
+            <div class="layui-form-item" id="majorDiv" style="display: none">
+                <label class="layadmin-user-login-icon layui-icon layui-icon-form" for="LAY-user-register-major"></label>
+                <select name="major" id="LAY-user-register-major" lay-verify="required" lay-search="" lay-filter="major" >
+                    <option value="">请选择或输入专业</option>
+                    <option th:each="major:${majorList}" th:value="${major.id}" th:text="${major.name}"></option>
+                </select>
+            </div>
+            <div class="layui-form-item">
+                <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="LAY-user-reg-submit">注 册</button>
+            </div>
+            <div class="layui-trans layui-form-item layadmin-user-login-other">
+                <a href="/login" class="layadmin-user-jump-change layadmin-link layui-hide-xs">用已有帐号登入</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/assets/layui/layui.js"></script>
+<script src="/static/js/notice.js"></script>
+<script src="/static/js/ajax.js"></script>
+<script type="text/javascript">
+    layui.use(['jquery','form','layer'],function(){
+        var $=layui.$,
+            form=layui.form,
+            layer=layui.layer;
+
+        $('#LAY-user-register-repass').blur(function() {
+            if($('#LAY-user-register-password').val() !== $('#LAY-user-register-repass').val()){
+                layer.tips('两次输入密码不一致!','#LAY-user-login-repass');
+            }
+        });
+        form.on('submit(LAY-user-reg-submit)',function(data) {
+            if($('#LAY-user-register-password').val() === $('#LAY-user-register-repass').val()) {
+                var user={
+                    idNumber:data.field.idNumber,
+                    name:data.field.name,
+                    password:data.field.password,
+                    role:{
+                        id:data.field.role
+                    }
+                };
+                if (data.field.major!==null)
+                    user.major={
+                        id:data.field.major
+                    };
+
+                ajax_post_json('authority/register',JSON.stringify(user),function (res) {
+                    if (res.code !== 200) {
+                        notice_error(res.msg);
+                    } else {
+                        window.location.href = "/login";
+                    }
+                });
+            }else
+                layer.tips('两次输入密码不一致!','#LAY-user-login-repass');
+            return false;
+        });
+
+        form.on('select(role)',function () {
+            var role=$('#LAY-user-register-role option:selected').text();
+            if (role==='student'||role==='instructor')
+                $('#majorDiv').removeAttr('style');
+            else
+                $('#majorDiv').attr('style','display:none');
+        })
+    });
+</script>
+</body>
+</html>

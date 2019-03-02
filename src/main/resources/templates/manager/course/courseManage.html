@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>课程管理</title>
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/assets/style/admin.css" media="all">
+</head>
+<body layadmin-themealias="default">
+<div class="layui-fluid">
+    <div class="layui-card">
+        <form class="layui-form layui-form-pane layui-card-header layuiadmin-card-header-auto">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">学年</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" id="year">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">学期</label>
+                    <div class="layui-input-inline">
+                        <select id="semesterSelector" lay-search="" lay-filter="semester" >
+                            <option value="1">01</option>
+                            <option value="2">02</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="layui-card-body">
+            <table id="table" lay-filter="table"></table>
+        </div>
+
+    </div>
+</div>
+
+<script type="text/html" id="toolbar">
+    <a class="layui-btn layui-btn-sm" lay-event="addCourse">添加课程</a>
+</script>
+
+<script type="text/html" id="bar">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script src="/static/assets/layui/layui.js"></script>
+<script src="/static/js/notice.js"></script>
+<script src="/static/js/ajax.js"></script>
+<script>
+    layui.use(['table', 'jquery', 'layer','laydate','form'], function () {
+        var $ = layui.$,
+            table = layui.table,
+            layer = layui.layer,
+            laydate=layui.laydate,
+            form=layui.form;
+
+        var year='2019 - 2020';
+
+        laydate.render({
+            elem: '#year'
+            ,type: 'year'
+            ,range: '-'
+            ,value:'2019 - 2020'
+            ,btns: ['confirm']
+            ,done: function(value){
+                year=value;
+                tableIns.reload({
+                    where:{
+                        semester:value+' '+$('#semesterSelector option:selected').text()
+                    }
+                });
+            }
+        });
+
+        var tableIns = table.render({
+            elem: '#table',
+            height: 'full-80',
+            toolbar:'#toolbar',
+            defaultToolbar: ['print', 'exports'],
+            cols: [
+                [
+                    {field:'id',title:'ID',sort:true},
+                    {field: 'name', title: '课程名称', sort: true},
+                    {field:'major',title:'所属专业',sort:true,templet:function (d) {
+                        return d.major.name;
+                        }},
+                    {field:'teacher',title:'任课教师',sort:true,templet:function (d) {
+                        return d.teacher.name;
+                        }},
+                    {field:'students',title:'选课人数',sort:true,templet:function (d) {
+                        return d.students===null?0:d.students.length;
+                        }},
+                    {field:'time',title:'上课时间'},
+                    {title: '操作', align: 'center', width: '10%', toolbar: '#bar'}
+                ]
+            ],
+            text: {
+                none: '暂无相关数据'
+            },
+            page: false,
+            url: "/course/getCoursesBySemester",
+            where:{
+                semester:year+' '+$('#semesterSelector option:selected').val()
+            },
+            response: {
+                statusCode: 200
+            },
+            parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "data": res.data.list,
+                    "count":res.data.count
+                };
+            }
+        });
+
+        table.on('tool(table)', function (obj) {
+            var data = obj.data;
+            switch (obj.event) {
+                case 'del':
+                    layer.confirm('真的删除么',{title:'删除用户',shadeClose:true}, function (index) {
+                        layer.close(index);
+                        $.get('/course/del',{
+                            id: data.id
+                        },function (res) {
+                            if (res.code === 200) {
+                                obj.del();
+                                notice_success('删除成功');
+                            } else {
+                                notice_error(res.msg);
+                            }
+                        });
+                    });
+                    break;
+            }
+        });
+
+        table.on('toolbar(table)',function (obj) {
+            var data = obj.data;
+            switch (obj.event) {
+                case 'addCourse':
+
+                    break;
+            }
+        });
+
+        form.on('select(semester)',function () {
+            tableIns.reload({
+                where:{
+                    semester:year+' '+$('#semesterSelector option:selected').text()
+                }
+            });
+        })
+    })
+</script>
+</body>
+</html>

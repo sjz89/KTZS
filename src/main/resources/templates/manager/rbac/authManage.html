@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>权限管理</title>
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/assets/style/admin.css" media="all">
+</head>
+<body layadmin-themealias="default">
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <table id="table" lay-filter="table"></table>
+        </div>
+    </div>
+</div>
+
+<div id="addPermissionModel" style="display: none;margin: 20px;" align="center">
+    <form class="layui-form layui-form-pane">
+        <div class="layui-form-item">
+            <label class="layui-form-label">权限路径</label>
+            <div class="layui-input-inline">
+                <input name="path" class="layui-input" type="text" placeholder="请输入权限路径" lay-verify="required">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">权限描述</label>
+            <div class="layui-input-inline">
+                <input name="description" class="layui-input" type="text" placeholder="请输入权限描述">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <button class="layui-btn" lay-filter="addPermission" lay-submit>提交</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/html" id="toolbar">
+    <a class="layui-btn layui-btn-sm" lay-event="addPermission">添加权限</a>
+</script>
+
+<script type="text/html" id="bar">
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script src="/static/assets/layui/layui.js"></script>
+<script src="/static/js/notice.js"></script>
+<script src="/static/js/ajax.js"></script>
+<script>
+    layui.use(['table', 'jquery', 'layer', 'form'], function () {
+        var $ = layui.$,
+            table = layui.table,
+            layer = layui.layer,
+            form = layui.form;
+
+        var tableIns = table.render({
+            elem: '#table',
+            height: 'full',
+            toolbar:'#toolbar',
+            defaultToolbar: ['print', 'exports'],
+            cols: [
+                [
+                    {field: 'id', title: 'ID', sort: true},
+                    {field: 'path', title: "权限路径"},
+                    {field: 'description', title: "权限描述"},
+                    {field: 'createTime', title: "创建时间", sort: true},
+                    {title: '操作', align: 'center', width: '8%', toolbar: '#bar'}
+                ]
+            ],
+            text: {
+                none: '暂无相关数据'
+            },
+            skin:'line',
+            page: false,
+            url: "/authority/getAllPermission",
+            response: {
+                statusCode: 200
+            },
+            parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "data": res.data
+                };
+            }
+        });
+
+        table.on('tool(table)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除么', {
+                    title:'删除权限',
+                    shadeClose:true
+                },function (index) {
+                    $.post('/authority/delPermission',{
+                        id: data.id,
+                        path: data.path
+                    },function (res) {
+                        if (res.code === 200) {
+                            obj.del();
+                            notice_success('删除成功');
+                        } else {
+                            notice_error(res.msg);
+                        }
+                    });
+                    layer.close(index);
+                });
+            }
+        });
+
+        table.on('toolbar(table)',function (obj) {
+            switch (obj.event) {
+                case 'addPermission':
+                    layer.open({
+                        type:1,
+                        content:$('#addPermissionModel'),
+                        title:'添加权限',
+                        shadeClose:true,
+                        success:function (layero,index) {
+                            form.on('submit(addPermission)',function (data) {
+                                ajax_post_json('/authority/addPermission',JSON.stringify(data.field),function (res) {
+                                    if (res.code===200){
+                                        notice_success('权限添加成功');
+                                        tableIns.reload();
+                                    }else
+                                        notice_error(res.msg);
+                                });
+                                layer.close(index);
+                                return false;
+                            })
+                        }
+                    });
+                    break;
+            }
+        })
+    })
+</script>
+</body>
+</html>

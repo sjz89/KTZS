@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>更改密码</title>
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/assets/style/admin.css" media="all">
+</head>
+<body layadmin-themealias="default">
+
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <div class="layui-card-header">更改密码</div>
+                <div class="layui-card-body">
+                    <form class="layui-form layui-form-pane">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">原密码</label>
+                            <div class="layui-input-inline">
+                                <input name="oldPwd" class="layui-input" type="password" placeholder="请输入原密码"
+                                       autocomplete="off" lay-verify="password">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">新密码</label>
+                            <div class="layui-input-inline">
+                                <input name="password" id="password" class="layui-input" type="password"
+                                       placeholder="请输入新密码" autocomplete="off" lay-verify="password">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">确认新密码</label>
+                            <div class="layui-input-inline">
+                                <input name="confirmPwd" id="confirmPwd" class="layui-input" type="password"
+                                       placeholder="请再次输入新密码" autocomplete="off" lay-verify="password">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux" id="hint" style="display: none"><span
+                                    style="color: #DC143C;">两次密码不一致</span></div>
+                        </div>
+                        <div class="layui-form-item">
+                            <div class="layui-inline">
+                                <button class="layui-btn" lay-filter="changePwd" lay-submit>确认修改</button>
+                                <button class="layui-btn layui-btn-primary" type="reset">重新填写</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/static/assets/layui/layui.js"></script>
+<script>
+    layui.config({
+        base: '/static/assets/'
+    }).extend({
+        notice: 'lib/notice'
+    }).use(['form', 'jquery', 'notice'], function () {
+        var $ = layui.$,
+            form = layui.form,
+            notice = layui.notice;
+
+        $('#confirmPwd').blur(function () {
+            if ($('#password').val() !== $('#confirmPwd').val())
+                $('#hint').removeAttr('style');
+            else
+                $('#hint').attr('style', 'display:none')
+        });
+
+        form.on('submit(changePwd)', function (data) {
+            if ($('#password').val() === $('#confirmPwd').val())
+                $.ajax({
+                    url: '/user/changePwd',
+                    type: 'post',
+                    data: {
+                        oldPwd: data.field.oldPwd,
+                        password: data.field.password
+                    },
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.code === 200)
+                            notice.init({
+                                autoClose: true,
+                                type:'default',
+                                title: "密码修改成功"
+                            });
+                        else
+                            notice.init({
+                                autoClose: true,
+                                type: 'danger',
+                                title: res.msg
+                            })
+                    }
+                });
+            return false;
+        })
+    })
+</script>
+</body>
+</html>

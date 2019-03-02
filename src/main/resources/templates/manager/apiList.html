@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>接口文档</title>
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/assets/style/admin.css" media="all">
+</head>
+<body layadmin-themealias="default">
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <table id="table" lay-filter="table"></table>
+        </div>
+    </div>
+</div>
+
+<script src="/static/assets/layui/layui.js"></script>
+<script src="/static/js/notice.js"></script>
+<script src="/static/js/ajax.js"></script>
+<script>
+    layui.use(['table'], function () {
+        var table = layui.table;
+
+        table.render({
+            elem: '#table',
+            height:'full-60',
+            toolbar:false,
+            cols: [
+                [
+                    {field: 'url', title: 'URL', sort: true},
+                    {field: 'description', title: "描述"},
+                    {field: 'params', title: "入参"},
+                    {field: 'type', title: "请求类型", sort: true}
+                ]
+            ],
+            text: {
+                none: '暂无相关数据'
+            },
+            skin:'nob',
+            page: false,
+            url: "/authority/getAllUrl",
+            response: {
+                statusCode: 200
+            },
+            parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "data": res.data
+                };
+            }
+        });
+
+    })
+</script>
+</body>
+</html>
