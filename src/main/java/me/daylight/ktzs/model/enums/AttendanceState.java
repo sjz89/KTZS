@@ -8,7 +8,7 @@ public enum AttendanceState {
 
     SIGNED(1),
 
-    UNSIGNED(2);
+    UNSIGNED(0);
 
     private int state;
 

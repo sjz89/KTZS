@@ -55,14 +55,13 @@ public class AttendanceController {
         for (User student:courseService.findCourseById(course.getId()).getStudents()) {
             User user=new User();
             user.setId(student.getId());
-            redisTemplate.opsForHash().put(uniqueId, student.getIdNumber(),
+            redisTemplate.opsForHash().put(uniqueId+"_list", student.getIdNumber(),
                     Attendance.generateValue(uniqueId + student.getId(), course, user));
         }
-        redisTemplate.opsForHash().put(uniqueId,"position-x",x);
-        redisTemplate.opsForHash().put(uniqueId,"position-y",y);
-        redisTemplate.opsForHash().getOperations().expire(uniqueId,limitMin, TimeUnit.MINUTES);
-        redisTemplate.opsForValue().set(SessionUtil.getInstance().getIdNumber(),uniqueId);
-        redisTemplate.opsForValue().getOperations().expire(SessionUtil.getInstance().getIdNumber(),limitMin,TimeUnit.MINUTES);
+        redisTemplate.opsForHash().put(uniqueId+"_position","position-x",x);
+        redisTemplate.opsForHash().put(uniqueId+"_position","position-y",y);
+        redisTemplate.opsForValue().set("qd_"+uniqueId,null,limitMin,TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(SessionUtil.getInstance().getIdNumber(),uniqueId,limitMin,TimeUnit.MINUTES);
         return RetResponse.success(uniqueId);
     }
 
@@ -75,12 +74,13 @@ public class AttendanceController {
         if (!uniqueId.equals(redisTemplate.opsForValue().get(SessionUtil.getInstance().getIdNumber())))
             return RetResponse.error("操作失败");
         //将redis中的签到记录存放到数据库中
-        redisTemplate.opsForHash().delete(uniqueId,"position-x","position-y");
-        Map attendanceMap=redisTemplate.opsForHash().entries(uniqueId);
+        Map attendanceMap=redisTemplate.opsForHash().entries(uniqueId+"_list");
         attendanceService.saveAll(attendanceMap.values());
 
         redisTemplate.delete(SessionUtil.getInstance().getIdNumber());
-        redisTemplate.delete(uniqueId);
+        redisTemplate.delete("qd_"+uniqueId);
+        redisTemplate.delete(uniqueId+"_list");
+        redisTemplate.delete(uniqueId+"_position");
         return RetResponse.success();
     }
 
@@ -89,25 +89,25 @@ public class AttendanceController {
     public BaseResponse signIn(String uniqueId,Float x,Float y){
         //签到流程
         //1 检测签到是否结束
-        if (!redisTemplate.hasKey(uniqueId))
+        if (!redisTemplate.hasKey("qd_"+uniqueId))
             return RetResponse.error("该签到已结束");
         //2 检测学生是否选修
-        if (!redisTemplate.opsForHash().hasKey(uniqueId,SessionUtil.getInstance().getIdNumber()))
+        if (!redisTemplate.opsForHash().hasKey(uniqueId+"_list",SessionUtil.getInstance().getIdNumber()))
             return RetResponse.error("你未选修该课程，无法签到");
         //3 检测学生是否已经签到
-        if (((Attendance)redisTemplate.opsForHash().get(uniqueId,SessionUtil.getInstance().getIdNumber())).getState()==AttendanceState.SIGNED.getState())
+        if (((Attendance)redisTemplate.opsForHash().get(uniqueId+"_list",SessionUtil.getInstance().getIdNumber())).getState()==AttendanceState.SIGNED.getState())
             return RetResponse.error("你已签到，请不要重复签到");
         //4 检测学生位置是否在签到范围内
-//        if (((Float)redisTemplate.opsForHash().get(uniqueId,"position-x")-x>0.001
-//        ||x-(Float)redisTemplate.opsForHash().get(uniqueId,"position-x")>0.001)&&
+//        if (((Float)redisTemplate.opsForHash().get(uniqueId+"_position","position-x")-x>0.001
+//        ||x-(Float)redisTemplate.opsForHash().get(uniqueId+"_position","position-x")>0.001)&&
 //                ((Float)redisTemplate.opsForHash().get(uniqueId,"position-y")-y>0.001)||
 //                y-(Float)redisTemplate.opsForHash().get(uniqueId,"position-y")>0.001)
 //            return RetResponse.error("不在签到范围内");
 
-        Attendance attendance=(Attendance)redisTemplate.opsForHash().get(uniqueId,SessionUtil.getInstance().getIdNumber());
+        Attendance attendance=(Attendance)redisTemplate.opsForHash().get(uniqueId+"_list",SessionUtil.getInstance().getIdNumber());
         attendance.setState(AttendanceState.SIGNED.getState());
         attendance.setCreateTime(new Date());
-        redisTemplate.opsForHash().put(uniqueId,SessionUtil.getInstance().getIdNumber(),attendance);
+        redisTemplate.opsForHash().put(uniqueId+"_list",SessionUtil.getInstance().getIdNumber(),attendance);
 
         return RetResponse.success();
     }

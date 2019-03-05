@@ -1,5 +1,6 @@
 package me.daylight.ktzs.model.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -29,6 +30,7 @@ public class User implements Serializable {
 
     private String password;
 
+    @JSONField()
     @ManyToOne
     private Role role;
 

@@ -3,6 +3,7 @@ package me.daylight.ktzs.configuration.redis;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +13,6 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -24,6 +24,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @EnableCaching
 public class RedisConfig extends CachingConfigurerSupport {
+
+    @Autowired
+    private AttendanceExpiredListener messageListener;
+
     @Bean
     public RedisTemplate<String,Object> redisTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
         //设置序列化
@@ -46,31 +50,17 @@ public class RedisConfig extends CachingConfigurerSupport {
         // Hash value序列化
         redisTemplate.setHashValueSerializer(jackson2JsonRedisSerializer);
         redisTemplate.afterPropertiesSet();
+
         return redisTemplate;
     }
 
     @Bean
-    public RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
-                                            MessageListenerAdapter listenerAdapter) {
+    public RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        // 订阅了一个叫chat 的通道
-        container.addMessageListener(listenerAdapter, new PatternTopic("WEB_SOCKET_CHANNEL"));
+        container.addMessageListener(messageListener, new PatternTopic("__keyevent@0__:expired"));
         // 这个container 可以添加多个 messageListener
         return container;
-    }
-
-    /**
-     * 消息监听器适配器，绑定消息处理器，利用反射技术调用消息处理器的业务方法
-     *
-     * @param receiver
-     * @return
-     */
-    @Bean
-    public MessageListenerAdapter listenerAdapter(RedisMsg receiver) {
-        // 这个地方 是给messageListenerAdapter 传入一个消息接受的处理器，利用反射的方法调用“receiveMessage”
-        // 也有好几个重载方法，这边默认调用处理器的方法 叫handleMessage 可以自己到源码里面看
-        return new MessageListenerAdapter(receiver, "receiveMessage");
     }
 
 }
