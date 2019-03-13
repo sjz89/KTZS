@@ -20,4 +20,8 @@ public interface AttendanceService {
     Page<Attendance> findByCourse(Course course,int page,int limit);
 
     List<Attendance> findByStudent(User student);
+
+    int countByCourseAndStateAndUniqueId(Long courseId, int state, String uniqueId);
+
+    Attendance getLatestByCourseId(Long id);
 }

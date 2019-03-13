@@ -24,9 +24,17 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 @Configuration
 @EnableCaching
 public class RedisConfig extends CachingConfigurerSupport {
+    public static final String Redis_Channel_SignInCount="signInCount";
+    public static final String Redis_Channel_Notice="notice";
 
     @Autowired
     private AttendanceExpiredListener messageListener;
+
+    @Autowired
+    private StudentSignInListener signInListener;
+
+    @Autowired
+    private NoticePushListener noticePushListener;
 
     @Bean
     public RedisTemplate<String,Object> redisTemplate(LettuceConnectionFactory lettuceConnectionFactory) {
@@ -59,7 +67,8 @@ public class RedisConfig extends CachingConfigurerSupport {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
         container.addMessageListener(messageListener, new PatternTopic("__keyevent@0__:expired"));
-        // 这个container 可以添加多个 messageListener
+        container.addMessageListener(signInListener,new PatternTopic(Redis_Channel_SignInCount));
+        container.addMessageListener(noticePushListener,new PatternTopic(Redis_Channel_Notice));
         return container;
     }
 

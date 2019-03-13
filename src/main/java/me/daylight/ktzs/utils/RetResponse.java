@@ -1,6 +1,10 @@
 package me.daylight.ktzs.utils;
 
 import me.daylight.ktzs.model.dto.BaseResponse;
+import me.daylight.ktzs.model.entity.User;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Daylight
@@ -38,5 +42,15 @@ public class RetResponse {
         response.setCode(401);
         response.setMsg("UNAUTHORIZED");
         return response;
+    }
+
+    public static Map<String,Object> transformUser(User user){
+        Map<String,Object> map=new HashMap<>();
+        map.put("id",user.getId());
+        map.put("idNumber",user.getIdNumber());
+        map.put("name",user.getName());
+        map.put("phone",user.getPhone());
+        map.put("role",user.getRole().getName());
+        return map;
     }
 }

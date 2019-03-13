@@ -6,31 +6,27 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @author Daylight
- * @date 2019/1/19 16:40
+ * @date 2019/03/09 06:37
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class User implements Serializable {
+public class UploadFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String idNumber;
-
-    private String name;
-
-    private String phone;
-
-    private String password;
-
     @ManyToOne
-    private Role role;
+    private User uploader;
+
+    private String fileName;
+
+    private String UUIDName;
+
+    private String path;
 
     @CreatedDate
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
@@ -40,6 +36,17 @@ public class User implements Serializable {
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
+    public UploadFile(){
+
+    }
+
+    public UploadFile(User uploader, String fileName, String UUIDName, String path) {
+        this.uploader = uploader;
+        this.fileName = fileName;
+        this.UUIDName = UUIDName;
+        this.path = path;
+    }
+
     public Long getId() {
         return id;
     }
@@ -48,44 +55,28 @@ public class User implements Serializable {
         this.id = id;
     }
 
-    public String getIdNumber() {
-        return idNumber;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setIdNumber(String idNumber) {
-        this.idNumber = idNumber;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
-    public String getName() {
-        return name;
+    public String getUUIDName() {
+        return UUIDName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUUIDName(String UUIDName) {
+        this.UUIDName = UUIDName;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getPath() {
+        return path;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public Date getCreateTime() {
@@ -102,5 +93,13 @@ public class User implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public User getUploader() {
+        return uploader;
+    }
+
+    public void setUploader(User uploader) {
+        this.uploader = uploader;
     }
 }

@@ -41,6 +41,16 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public List<Attendance> findByStudent(User student) {
-        return attendanceRepository.findAttendancesByStudent(student);
+        return attendanceRepository.findAttendancesByStudentOrderByCreateTimeDesc(student);
+    }
+
+    @Override
+    public int countByCourseAndStateAndUniqueId(Long courseId, int state, String uniqueId) {
+        return attendanceRepository.countLatest(courseId, state,uniqueId);
+    }
+
+    @Override
+    public Attendance getLatestByCourseId(Long id) {
+        return attendanceRepository.getLatestTimeById(id);
     }
 }

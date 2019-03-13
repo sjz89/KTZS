@@ -48,8 +48,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<Course> findCoursesByUserIdAndSemester(String semester, Long userId) {
-        return courseRepository.findCoursesByUserIdAndSemester(userId, semester);
+    public List<Course> findCoursesByStudentAndSemester(String semester, Long studentId) {
+        return courseRepository.findCoursesByStudentAndSemester(studentId, semester);
+    }
+
+    @Override
+    public List<Course> findCoursesByTeacherAndSemester(String semester, Long teacherId) {
+        return courseRepository.findCoursesByTeacherAndSemester(teacherId,semester);
     }
 
     @Override

@@ -11,26 +11,26 @@ import java.util.Date;
 
 /**
  * @author Daylight
- * @date 2019/1/19 16:40
+ * @date 2019/03/09 06:47
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class User implements Serializable {
+public class LeaveNote implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String idNumber;
-
-    private String name;
-
-    private String phone;
-
-    private String password;
+    @ManyToOne
+    private Course course;
 
     @ManyToOne
-    private Role role;
+    private User student;
+
+    private Integer state;
+
+    private String reason;
+
+    private String remark;
 
     @CreatedDate
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
@@ -48,44 +48,44 @@ public class User implements Serializable {
         this.id = id;
     }
 
-    public String getIdNumber() {
-        return idNumber;
+    public Course getCourse() {
+        return course;
     }
 
-    public void setIdNumber(String idNumber) {
-        this.idNumber = idNumber;
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
-    public String getName() {
-        return name;
+    public User getStudent() {
+        return student;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setStudent(User student) {
+        this.student = student;
     }
 
-    public String getPhone() {
-        return phone;
+    public Integer getState() {
+        return state;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setState(Integer state) {
+        this.state = state;
     }
 
-    public String getPassword() {
-        return password;
+    public String getReason() {
+        return reason;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
-    public Role getRole() {
-        return role;
+    public String getRemark() {
+        return remark;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public Date getCreateTime() {

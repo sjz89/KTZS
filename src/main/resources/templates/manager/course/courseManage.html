@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>课程管理</title>
@@ -9,7 +9,7 @@
 <body layadmin-themealias="default">
 <div class="layui-fluid">
     <div class="layui-card">
-        <form class="layui-form layui-form-pane layui-card-header layuiadmin-card-header-auto">
+        <form class="layui-form layui-form-pane layui-card-header layuiadmin-card-header-auto" lay-filter="form">
             <div class="layui-form-item">
                 <div class="layui-inline">
                     <label class="layui-form-label">学年</label>
@@ -20,7 +20,7 @@
                 <div class="layui-inline">
                     <label class="layui-form-label">学期</label>
                     <div class="layui-input-inline">
-                        <select id="semesterSelector" lay-search="" lay-filter="semester" >
+                        <select id="semesterSelector" name="semester" lay-search="" lay-filter="semester" >
                             <option value="1">01</option>
                             <option value="2">02</option>
                         </select>
@@ -33,6 +33,43 @@
         </div>
 
     </div>
+</div>
+
+<div id="addCourseModel" style="display: none;margin: 20px;" align="center">
+    <form class="layui-form layui-form-pane" lay-filter="addCourse">
+        <div class="layui-form-item">
+            <label class="layui-form-label">入学年份</label>
+            <div class="layui-input-inline">
+                <input type="text" name="year" class="layui-input" id="yearSelector" placeholder="请选择学生入学年份">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">专业</label>
+            <div class="layui-input-inline">
+                <select name="majorId" lay-verify="required" lay-search="" class="layui-input">
+                    <option value="">请选择或输入专业</option>
+                    <option th:each="major:${majorList}" th:value="${major.id}" th:text="${major.name}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">学号区间</label>
+                <div class="layui-input-inline" style="width: 27%;">
+                    <input type="number" name="idStart" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid">-</div>
+                <div class="layui-input-inline" style="width: 26.5%;">
+                    <input type="number" name="idEnd" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <button class="layui-btn" lay-filter="generate" lay-submit>提交</button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <script type="text/html" id="toolbar">
@@ -54,13 +91,13 @@
             laydate=layui.laydate,
             form=layui.form;
 
-        var year='2019 - 2020';
+        var year=getSemester();
 
         laydate.render({
             elem: '#year'
             ,type: 'year'
             ,range: '-'
-            ,value:'2019 - 2020'
+            ,value:year
             ,btns: ['confirm']
             ,done: function(value){
                 year=value;
@@ -100,7 +137,7 @@
             page: false,
             url: "/course/getCoursesBySemester",
             where:{
-                semester:year+' '+$('#semesterSelector option:selected').val()
+                semester:year+' '+$('#semesterSelector option:selected').text()
             },
             response: {
                 statusCode: 200
@@ -150,7 +187,27 @@
                     semester:year+' '+$('#semesterSelector option:selected').text()
                 }
             });
-        })
+        });
+
+        function getSemester() {
+            var date=new Date();
+            var year=date.getFullYear();
+            var month=date.getMonth();
+            if (month>=8||month<=1){
+                setSemester(1);
+                return year+" - "+(year+1);
+            }
+            else {
+                setSemester(2);
+                return (year-1)+" - "+year;
+            }
+        }
+
+        function setSemester(semester) {
+            form.val('form',{
+                semester:semester
+            })
+        }
     })
 </script>
 </body>

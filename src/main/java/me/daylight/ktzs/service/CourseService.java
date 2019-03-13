@@ -21,7 +21,9 @@ public interface CourseService {
 
     Page<Course> getAllCourse(String semester,int page,int limit);
 
-    List<Course> findCoursesByUserIdAndSemester(String semester, Long userId);
+    List<Course> findCoursesByStudentAndSemester(String semester, Long studentId);
+
+    List<Course> findCoursesByTeacherAndSemester(String semester, Long teacherId);
 
     List<Course> findCoursesByMajorAndSemester(String semester, Major major);
 }

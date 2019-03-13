@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>课堂签到</title>
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css">
+    <link rel="stylesheet" href="/static/assets/style/admin.css">
+</head>
+<body>
+<div class="layui-fluid">
+    <div class="layadmin-tips">
+        <div align="center" id="qrcode"></div>
+        <div class="layui-text">
+            <h2>
+                <span class="layui-anim layui-anim-loop layui-anim-">签到码:</span>
+                <span class="layui-anim layui-anim-loop layui-anim-" th:text="${uniqueId}"></span>
+            </h2>
+        </div>
+    </div>
+</div>
+<script src="/static/assets/layui/layui.js"></script>
+<script type="text/javascript">
+    layui.config({
+        base: '/static/assets/lib/'
+    }).use(['qrcode'], function () {
+        qrcode = layui.qrcode;
+
+        qrcode.qrcode(document.getElementById('qrcode'), {
+            width: 640,
+            height: 640
+        });
+        qrcode.makeCode(window.location.href.split('/')[4]);
+    })
+</script>
+</body>
+</html>

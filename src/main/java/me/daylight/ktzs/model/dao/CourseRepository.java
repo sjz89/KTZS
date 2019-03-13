@@ -18,7 +18,10 @@ public interface CourseRepository extends JpaRepository<Course,Long> {
 
     @Query(value = "select * from course where id in " +
             "(select course_id from course_students where students_id=?1) and semester=?2 order by time",nativeQuery = true)
-    List<Course> findCoursesByUserIdAndSemester(Long userId, String semester);
+    List<Course> findCoursesByStudentAndSemester(Long userId, String semester);
+
+    @Query(value = "select * from course where teacher_id=?1 and semester=?2 order by time",nativeQuery = true)
+    List<Course> findCoursesByTeacherAndSemester(Long teacherId,String semester);
 
     List<Course> findCoursesBySemesterAndMajor(String semester, Major major);
 

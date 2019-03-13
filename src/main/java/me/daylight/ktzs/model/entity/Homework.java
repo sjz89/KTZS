@@ -6,31 +6,25 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Daylight
- * @date 2019/1/19 16:40
+ * @date 2019/03/09 06:35
  */
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class User implements Serializable {
+public class Homework {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String idNumber;
-
-    private String name;
-
-    private String phone;
-
-    private String password;
-
     @ManyToOne
-    private Role role;
+    private Course course;
+
+    @ManyToMany
+    private List<UploadFile> files;
 
     @CreatedDate
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
@@ -48,44 +42,20 @@ public class User implements Serializable {
         this.id = id;
     }
 
-    public String getIdNumber() {
-        return idNumber;
+    public Course getCourse() {
+        return course;
     }
 
-    public void setIdNumber(String idNumber) {
-        this.idNumber = idNumber;
+    public void setCourse(Course course) {
+        this.course = course;
     }
 
-    public String getName() {
-        return name;
+    public List<UploadFile> getFiles() {
+        return files;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
+    public void setFiles(List<UploadFile> files) {
+        this.files = files;
     }
 
     public Date getCreateTime() {

@@ -6,6 +6,7 @@ import me.daylight.ktzs.model.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -16,5 +17,11 @@ import java.util.List;
 public interface AttendanceRepository extends JpaRepository<Attendance,Long> {
     Page<Attendance> findAttendancesByCourse(Course course, Pageable pageable);
 
-    List<Attendance> findAttendancesByStudent(User student);
+    List<Attendance> findAttendancesByStudentOrderByCreateTimeDesc(User student);
+
+    @Query(value = "select count(*) from attendance where course_id=?1 and state=?2 and unique_id like ?3",nativeQuery = true)
+    int countLatest(Long courseId,int state,String uniqueId);
+
+    @Query(value = "select * from attendance where course_id=?1 ORDER BY create_time DESC limit 1 ",nativeQuery =true)
+    Attendance getLatestTimeById(Long courseId);
 }

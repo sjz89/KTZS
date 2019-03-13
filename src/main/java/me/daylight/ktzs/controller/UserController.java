@@ -9,6 +9,9 @@ import me.daylight.ktzs.utils.RetResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Daylight
  * @date 2019/01/31 14:31
@@ -24,7 +27,11 @@ public class UserController {
     public BaseResponse getSelfInfo(){
         if (!SessionUtil.getInstance().isUserLogin())
             return RetResponse.error("请先登录");
-        return RetResponse.success(SessionUtil.getInstance().getUser());
+        User user=SessionUtil.getInstance().getUser();
+        if (!SessionUtil.getInstance().isMobile())
+            return RetResponse.success(user);
+
+        return RetResponse.success(RetResponse.transformUser(user));
     }
 
     @ApiDoc(description = "更改密码")
@@ -41,7 +48,7 @@ public class UserController {
     @ApiDoc(description = "更改用户信息")
     @PostMapping("/changeInfo")
     public BaseResponse changeUserInfo(@RequestBody User user){
-        User loginUser=SessionUtil.getInstance().getUser();
+        User loginUser=userService.findUserByIdNumber(SessionUtil.getInstance().getIdNumber());
         if (user.getName()!=null&&!user.getName().equals(""))
             loginUser.setName(user.getName());
         if (user.getPhone()!=null)

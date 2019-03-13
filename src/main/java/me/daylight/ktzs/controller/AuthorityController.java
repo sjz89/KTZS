@@ -63,7 +63,7 @@ public class AuthorityController {
         SessionUtil.getInstance().setSessionMap(user,permissions);
         //判断是否为客户端，如果是客户端则延长session过期时间
         SessionUtil.getInstance().setMobileSessionTimeout();
-        return RetResponse.success();
+        return RetResponse.success(user.getRole().getName());
     }
 
     @Unlimited

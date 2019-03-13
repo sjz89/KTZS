@@ -3,6 +3,7 @@ package me.daylight.ktzs.controller;
 import me.daylight.ktzs.annotation.ApiDoc;
 import me.daylight.ktzs.authority.SessionUtil;
 import me.daylight.ktzs.model.dto.BaseResponse;
+import me.daylight.ktzs.model.dto.CourseDto;
 import me.daylight.ktzs.model.entity.Course;
 import me.daylight.ktzs.model.entity.Major;
 import me.daylight.ktzs.model.entity.User;
@@ -13,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Daylight
@@ -81,7 +79,23 @@ public class CourseController {
     @ApiDoc(description = "查看我的课程")
     @GetMapping("/getMyCourses")
     public BaseResponse getMyCourses(String semester){
-        return RetResponse.success(courseService.findCoursesByUserIdAndSemester(semester,SessionUtil.getInstance().getUser().getId()));
+        if (semester==null){
+            Calendar calendar=Calendar.getInstance(Locale.CHINESE);
+            int year=calendar.get(Calendar.YEAR);
+            if (calendar.get(Calendar.MONTH)>=8||calendar.get(Calendar.MONTH)<=1)
+                semester=year+" - "+ (year + 1)+" 01";
+            else
+                semester=(year-1)+" - "+ year+" 02";
+        }
+        List<Course> courses;
+        if (SessionUtil.getInstance().getUser().getRole().getName().equals("student"))
+            courses=courseService.findCoursesByStudentAndSemester(semester,SessionUtil.getInstance().getUser().getId());
+        else
+            courses=courseService.findCoursesByTeacherAndSemester(semester,SessionUtil.getInstance().getUser().getId());
+        List<CourseDto> courseDtos=new ArrayList<>();
+        for (Course course:courses)
+            courseDtos.add(new CourseDto(course.getId(),course.getName(),course.getTeacher().getName(),course.getTime()));
+        return RetResponse.success(courseDtos);
     }
 
     @ApiDoc(description = "根据专业查找课程")
@@ -99,6 +113,9 @@ public class CourseController {
             return RetResponse.error("课程不存在");
         List<User> students=courseService.findCourseById(courseId).getStudents();
         students.sort(Comparator.comparing(User::getIdNumber));
-        return RetResponse.success(students);
+        List<Map<String,Object>> users=new ArrayList<>();
+        for (User student:students)
+            users.add(RetResponse.transformUser(student));
+        return RetResponse.success(users);
     }
 }

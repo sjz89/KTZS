@@ -6,9 +6,11 @@ import me.daylight.ktzs.authority.SessionUtil;
 import me.daylight.ktzs.service.RoleService;
 import me.daylight.ktzs.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
 /**
  * @author Daylight
@@ -22,6 +24,9 @@ public class PageController {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private RedisTemplate<String,Object> redisTemplate;
 
     @ApiDoc(description = "主页")
     @GetMapping("/")
@@ -140,5 +145,14 @@ public class PageController {
     @GetMapping("/course/page/courseStudentManage")
     public String courseStudentManage(){
         return "manager/course/courseStudentManage";
+    }
+
+    @ApiDoc(description = "课堂签到二维码展示页面")
+    @Unlimited
+    @GetMapping("/signIn/{uniqueId}")
+    public String showUniqueCodePage(@PathVariable String uniqueId,Model model){
+        model.addAttribute("uniqueId",uniqueId);
+        model.addAttribute("isUniqueIdCorrect",redisTemplate.hasKey("qd_"+uniqueId));
+        return "common/signIn";
     }
 }
