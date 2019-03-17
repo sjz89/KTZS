@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>按课程查询</title>
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/assets/style/admin.css" media="all">
+    <style type="text/css">
+        .layui-layer-page .layui-layer-content {overflow: inherit !important;}
+    </style>
+</head>
+<body layadmin-themealias="default">
+<div class="layui-fluid">
+    <div class="layui-card">
+        <form class="layui-form layui-form-pane layui-card-header layuiadmin-card-header-auto">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">课程名称</label>
+                    <div class="layui-input-inline">
+                        <select id="courseSelector" name="course" lay-search="" lay-filter="course" >
+                            <option th:each="course,iterStat:${courseList}" th:value="${course.id}"
+                                    th:selected="${iterStat.index==0}"
+                                    th:text="${course.name}+'('+${course.semester}+')'"></option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="layui-card-body">
+            <table id="table" lay-filter="table"></table>
+        </div>
+
+    </div>
+</div>
+
+<script src="/static/assets/layui/layui.js"></script>
+<script src="/static/js/notice.js"></script>
+<script src="/static/js/ajax.js"></script>
+<script>
+    layui.use(['table', 'jquery', 'layer', 'form'], function () {
+        var $ = layui.$,
+            table = layui.table,
+            form = layui.form;
+
+        var tableIns = table.render({
+            elem: '#table',
+            height: 'full-133',
+            toolbar:false,
+            cols: [
+                [
+                    {field:'id',title:'ID',sort:true,width:'10%'},
+                    {field: 'uniqueId', title: '签到码', sort: true},
+                    {field: 'student', title: "学生姓名",templet:function(d){
+                        return d.student.name;
+                        }},
+                    {field:'state',title:'签到状态',sort:true,templet:function(d){
+                        return d.state===0?'未签到':'已签到';
+                        }},
+                    {field: 'createTime', title: "签到时间", sort: true}
+                ]
+            ],
+            text: {
+                none: '暂无相关数据'
+            },
+            page: true,
+            limit: 17,
+            limits: [15, 30, 45, 60, 75, 90],
+            url: "/attendance/getByCourse",
+            where: {id: $('#courseSelector  option:selected').val()},
+            response: {
+                statusCode: 200
+            },
+            parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "data": res.data.list,
+                    "count": res.data.count
+                };
+            }
+        });
+
+        form.on('select(course)', function (data) {
+            tableIns.reload({
+                where: {id: $('#courseSelector  option:selected').val()}
+            });
+        })
+    })
+</script>
+</body>
+</html>

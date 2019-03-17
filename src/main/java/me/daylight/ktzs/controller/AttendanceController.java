@@ -17,6 +17,7 @@ import me.daylight.ktzs.service.UserService;
 import me.daylight.ktzs.utils.DateUtil;
 import me.daylight.ktzs.utils.RetResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,7 +60,7 @@ public class AttendanceController {
             User user=new User();
             user.setId(student.getId());
             redisTemplate.opsForHash().put(uniqueId+"_list", student.getIdNumber(),
-                    Attendance.generateValue(uniqueId + student.getId(), course, user));
+                    Attendance.generateValue(uniqueId, course, user));
         }
         redisTemplate.opsForHash().put(uniqueId+"_position","position-x",x);
         redisTemplate.opsForHash().put(uniqueId+"_position","position-y",y);
@@ -147,20 +148,38 @@ public class AttendanceController {
         return RetResponse.success(record);
     }
 
+    @ApiDoc(description = "获取全部签到记录")
+    @GetMapping("/getAll")
+    public BaseResponse getAllAttendanceRecord(int page,int limit){
+        Map<String,Object> resultMap=new HashMap<>();
+        Page<Attendance> attendances=attendanceService.findAllPageable(page,limit);
+        resultMap.put("list",attendances.getContent());
+        resultMap.put("count",attendances.getTotalElements());
+        return RetResponse.success(resultMap);
+    }
+
     @ApiDoc(description = "根据课程查询签到记录")
     @GetMapping("/getByCourse")
     public BaseResponse getAttendanceByCourse(Course course,int page,int limit){
         if (!courseService.isCourseExist(course.getId()))
             return RetResponse.error("课程不存在");
-        return RetResponse.success(attendanceService.findByCourse(course, page,limit));
+        Map<String,Object> resultMap=new HashMap<>();
+        Page<Attendance> attendances=attendanceService.findByCourse(course, page,limit);
+        resultMap.put("list",attendances.getContent());
+        resultMap.put("count",attendances.getTotalElements());
+        return RetResponse.success(resultMap);
     }
 
     @ApiDoc(description = "根据学生查询签到记录")
     @GetMapping("/getByStudent")
-    public BaseResponse getAttendanceByStudent(String idNumber){
+    public BaseResponse getAttendanceByStudent(String idNumber,int page,int limit){
         if (!userService.isUserExist(idNumber))
             return RetResponse.error("账号不存在");
-        return RetResponse.success(attendanceService.findByStudent(userService.findUserByIdNumber(idNumber)));
+        Map<String,Object> resultMap=new HashMap<>();
+        Page<Attendance> attendances=attendanceService.findByStudentPageable(userService.findUserByIdNumber(idNumber),page,limit);
+        resultMap.put("list",attendances.getContent());
+        resultMap.put("count",attendances.getTotalElements());
+        return RetResponse.success(resultMap);
     }
 
     @ApiDoc(description = "根据课程获取最近一次签到情况")
@@ -169,9 +188,9 @@ public class AttendanceController {
         if (!courseService.isCourseExist(courseId))
             return RetResponse.error("课程不存在");
         Attendance attendance=attendanceService.getLatestByCourseId(courseId);
-        String uniqueId=attendance.getUniqueId();
-        uniqueId="%"+uniqueId.substring(0,uniqueId.length()-1)+"%";
-        int count=attendanceService.countByCourseAndStateAndUniqueId(courseId,AttendanceState.SIGNED.getState(),uniqueId);
+        if (attendance==null)
+            return RetResponse.error("无最近签到");
+        int count=attendanceService.countByCourseAndStateAndUniqueId(courseId,AttendanceState.SIGNED.getState(),"%"+attendance.getUniqueId()+"%");
         Map<String,String> map=new HashMap<>();
         map.put("count",count+"/"+courseService.findCourseById(courseId).getStudents().size());
         map.put("time",DateUtil.dateToStr("yyyy-MM-dd HH:mm",attendance.getCreateTime()));

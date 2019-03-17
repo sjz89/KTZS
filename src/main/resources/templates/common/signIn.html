@@ -8,29 +8,58 @@
 </head>
 <body>
 <div class="layui-fluid">
-    <div class="layadmin-tips">
+    <div class="layadmin-tips" th:if="${hasUniqueId}==true">
+        <input id="remainTime" hidden th:value="${remainTime}">
         <div align="center" id="qrcode"></div>
         <div class="layui-text">
             <h2>
                 <span class="layui-anim layui-anim-loop layui-anim-">签到码:</span>
                 <span class="layui-anim layui-anim-loop layui-anim-" th:text="${uniqueId}"></span>
             </h2>
+            <br>
+            <h2>
+                <span id="remainTimeSpan" class="layui-anim layui-anim-loop layui-anim-"></span>
+            </h2>
+        </div>
+    </div>
+    <div class="layadmin-tips" th:if="${hasUniqueId}==false">
+        <i class="layui-icon" face>&#xe664;</i>
+        <div class="layui-text" style="font-size: 20px;">
+            您输入的地址有误
         </div>
     </div>
 </div>
 <script src="/static/assets/layui/layui.js"></script>
-<script type="text/javascript">
+<script src="/static/assets/layui/lay/modules/jquery.js"></script>
+<script type="text/javascript" th:if="${hasUniqueId}==true">
     layui.config({
         base: '/static/assets/lib/'
     }).use(['qrcode'], function () {
-        qrcode = layui.qrcode;
+        var qrcode = layui.qrcode;
 
         qrcode.qrcode(document.getElementById('qrcode'), {
             width: 640,
             height: 640
         });
         qrcode.makeCode(window.location.href.split('/')[4]);
-    })
+    });
+
+    var remainTime=layui.jquery('#remainTime').val();
+
+    var diff_time=parseInt(remainTime);
+
+    function countdown() {
+        var m = Math.floor((diff_time / 60 % 60));
+        var s = Math.floor((diff_time % 60));
+        var timer=layui.jquery('#remainTimeSpan');
+        timer.html("剩余时间：" +m + "分" + s + "秒");
+        if (diff_time<=0) {
+            timer.html("签到已结束");
+        }
+        diff_time--;
+    }
+    countdown();
+    setInterval('countdown()',1000);
 </script>
 </body>
 </html>

@@ -126,4 +126,9 @@ public class UserServiceImpl implements UserService {
         else
             majorRepository.setMajor(userId, majorId);
     }
+
+    @Override
+    public List<User> findUsersByRole(Long roleId) {
+        return userRepository.findUsersByRoleId(roleId);
+    }
 }

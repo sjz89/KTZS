@@ -2,6 +2,7 @@ package me.daylight.ktzs.service;
 
 import me.daylight.ktzs.model.entity.Course;
 import me.daylight.ktzs.model.entity.Major;
+import me.daylight.ktzs.model.entity.User;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -21,9 +22,15 @@ public interface CourseService {
 
     Page<Course> getAllCourse(String semester,int page,int limit);
 
+    List<Course> getAllCourse();
+
+    List<User> findStudentUnChooseCourse(Long courseId);
+
     List<Course> findCoursesByStudentAndSemester(String semester, Long studentId);
 
     List<Course> findCoursesByTeacherAndSemester(String semester, Long teacherId);
 
     List<Course> findCoursesByMajorAndSemester(String semester, Major major);
+
+    void delStudent(Long courseId,Long studentId);
 }

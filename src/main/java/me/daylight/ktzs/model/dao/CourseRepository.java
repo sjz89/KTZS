@@ -5,8 +5,10 @@ import me.daylight.ktzs.model.entity.Major;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 /**
@@ -26,4 +28,9 @@ public interface CourseRepository extends JpaRepository<Course,Long> {
     List<Course> findCoursesBySemesterAndMajor(String semester, Major major);
 
     Page<Course> findCoursesBySemester(String semester, Pageable pageable);
+
+    @Transactional
+    @Modifying
+    @Query(value = "delete from course_students where course_id=?1 and students_id=?2",nativeQuery = true)
+    void deleteStudent(Long courseId,Long studentId);
 }

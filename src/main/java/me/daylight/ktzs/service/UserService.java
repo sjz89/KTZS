@@ -43,4 +43,6 @@ public interface UserService {
     List<User> findUsersByMajorNull();
 
     void changeUserMajor(Long userId,Long majorId);
+
+    List<User> findUsersByRole(Long roleId);
 }

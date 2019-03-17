@@ -82,9 +82,25 @@
                             <cite>主页</cite>
                         </a>
                     </li>
+                    <li data-name="attendanceRecord" class="layui-nav-item">
+                        <a lay-tips="签到记录" lay-direction="2">
+                            <i class="layui-icon layui-icon-log"></i>
+                            <cite>签到记录</cite>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd data-name="console">
+                                <a lay-href="/attendance/page/queryByCourse">按课程查询</a>
+                            </dd>
+                        </dl>
+                        <dl class="layui-nav-child">
+                            <dd data-name="console">
+                                <a lay-href="/attendance/page/queryByStudent">按学生查询</a>
+                            </dd>
+                        </dl>
+                    </li>
                     <li data-name="majorManage" class="layui-nav-item">
                         <a lay-tips="专业管理" lay-direction="2">
-                            <i class="layui-icon layui-icon-read"></i>
+                            <i class="layui-icon layui-icon-flag"></i>
                             <cite>专业管理</cite>
                         </a>
                         <dl class="layui-nav-child">

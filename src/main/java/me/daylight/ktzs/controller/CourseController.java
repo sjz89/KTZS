@@ -58,6 +58,15 @@ public class CourseController {
         return RetResponse.success();
     }
 
+    @ApiDoc(description = "删除学生选课")
+    @GetMapping("/delStudent")
+    public BaseResponse delStudent(Long courseId,Long studentId){
+        if (!courseService.isCourseExist(courseId))
+            return RetResponse.error("课程不存在");
+        courseService.delStudent(courseId, studentId);
+        return RetResponse.success();
+    }
+
     @ApiDoc(description = "根据ID查找课程")
     @GetMapping("/getCourseById")
     public BaseResponse getCourseById(Long id){
@@ -117,5 +126,13 @@ public class CourseController {
         for (User student:students)
             users.add(RetResponse.transformUser(student));
         return RetResponse.success(users);
+    }
+
+    @ApiDoc(description = "获取未选修该课程的学生")
+    @GetMapping("/getStudentUnChoose")
+    public BaseResponse findStudentUnChoose(Long courseId){
+        if (!courseService.isCourseExist(courseId))
+            return RetResponse.error("课程不存在");
+        return RetResponse.success(courseService.findStudentUnChooseCourse(courseId));
     }
 }

@@ -19,7 +19,11 @@ public interface AttendanceService {
 
     Page<Attendance> findByCourse(Course course,int page,int limit);
 
+    Page<Attendance> findByStudentPageable(User student,int page,int limit);
+
     List<Attendance> findByStudent(User student);
+
+    Page<Attendance> findAllPageable(int page,int limit);
 
     int countByCourseAndStateAndUniqueId(Long courseId, int state, String uniqueId);
 

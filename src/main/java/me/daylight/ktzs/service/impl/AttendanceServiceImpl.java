@@ -36,12 +36,24 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public Page<Attendance> findByCourse(Course course,int page,int limit) {
         Pageable pageable= PageRequest.of(page-1,limit);
-        return attendanceRepository.findAttendancesByCourse(course,pageable);
+        return attendanceRepository.findAttendancesByCourseOrderByCreateTimeDesc(course,pageable);
+    }
+
+    @Override
+    public Page<Attendance> findByStudentPageable(User student,int page,int limit) {
+        Pageable pageable= PageRequest.of(page-1,limit);
+        return attendanceRepository.findAttendancesByStudentOrderByCreateTimeDesc(student,pageable);
     }
 
     @Override
     public List<Attendance> findByStudent(User student) {
         return attendanceRepository.findAttendancesByStudentOrderByCreateTimeDesc(student);
+    }
+
+    @Override
+    public Page<Attendance> findAllPageable(int page, int limit) {
+        Pageable pageable= PageRequest.of(page-1,limit);
+        return attendanceRepository.findAllOrderByCreateTimeDesc(pageable);
     }
 
     @Override

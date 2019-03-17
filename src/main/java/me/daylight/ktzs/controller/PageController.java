@@ -3,6 +3,7 @@ package me.daylight.ktzs.controller;
 import me.daylight.ktzs.annotation.ApiDoc;
 import me.daylight.ktzs.authority.Unlimited;
 import me.daylight.ktzs.authority.SessionUtil;
+import me.daylight.ktzs.service.CourseService;
 import me.daylight.ktzs.service.RoleService;
 import me.daylight.ktzs.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Daylight
@@ -24,6 +27,9 @@ public class PageController {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private CourseService courseService;
 
     @Autowired
     private RedisTemplate<String,Object> redisTemplate;
@@ -137,13 +143,16 @@ public class PageController {
 
     @ApiDoc(description = "课程管理页面")
     @GetMapping("/course/page/courseManage")
-    public String courseManage(){
+    public String courseManage(Model model){
+        model.addAttribute("majorList",userService.getMajorList());
+        model.addAttribute("teacherList",userService.findUsersByRole(roleService.findRoleByName("teacher").getId()));
         return "manager/course/courseManage";
     }
 
     @ApiDoc(description = "课程选课学生管理页面")
     @GetMapping("/course/page/courseStudentManage")
-    public String courseStudentManage(){
+    public String courseStudentManage(Model model){
+        model.addAttribute("courseList",courseService.getAllCourse());
         return "manager/course/courseStudentManage";
     }
 
@@ -151,8 +160,24 @@ public class PageController {
     @Unlimited
     @GetMapping("/signIn/{uniqueId}")
     public String showUniqueCodePage(@PathVariable String uniqueId,Model model){
+        model.addAttribute("hasUniqueId",redisTemplate.hasKey(uniqueId));
+        model.addAttribute("remainTime",redisTemplate.getExpire(uniqueId, TimeUnit.SECONDS));
         model.addAttribute("uniqueId",uniqueId);
         model.addAttribute("isUniqueIdCorrect",redisTemplate.hasKey("qd_"+uniqueId));
         return "common/signIn";
     }
+
+    @ApiDoc(description = "根据课程查询签到记录页面")
+    @GetMapping("/attendance/page/queryByCourse")
+    public String queryByCourse(Model model){
+        model.addAttribute("courseList",courseService.getAllCourse());
+        return "attendance/queryByCourse";
+    }
+
+    @ApiDoc(description = "根据学生查询签到记录页面")
+    @GetMapping("/attendance/page/queryByStudent")
+    public String queryByStudent(){
+        return "attendance/queryByStudent";
+    }
+
 }

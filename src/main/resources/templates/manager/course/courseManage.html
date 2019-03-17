@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>课程管理</title>
@@ -20,7 +20,7 @@
                 <div class="layui-inline">
                     <label class="layui-form-label">学期</label>
                     <div class="layui-input-inline">
-                        <select id="semesterSelector" name="semester" lay-search="" lay-filter="semester" >
+                        <select id="semesterSelector" name="semester" lay-search="" lay-filter="semester">
                             <option value="1">01</option>
                             <option value="2">02</option>
                         </select>
@@ -38,9 +38,30 @@
 <div id="addCourseModel" style="display: none;margin: 20px;" align="center">
     <form class="layui-form layui-form-pane" lay-filter="addCourse">
         <div class="layui-form-item">
-            <label class="layui-form-label">入学年份</label>
-            <div class="layui-input-inline">
-                <input type="text" name="year" class="layui-input" id="yearSelector" placeholder="请选择学生入学年份">
+            <div class="layui-inline">
+                <label class="layui-form-label">课程名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" lay-required class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">学年</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="schoolYear">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">学期</label>
+                <div class="layui-input-inline">
+                    <select id="semester" name="semester" lay-search="" lay-filter="semester">
+                        <option value="1">01</option>
+                        <option value="2">02</option>
+                    </select>
+                </div>
             </div>
         </div>
         <div class="layui-form-item">
@@ -53,20 +74,25 @@
             </div>
         </div>
         <div class="layui-form-item">
+            <label class="layui-form-label">任课教师</label>
+            <div class="layui-input-inline">
+                <select name="teacher" lay-verify="required" lay-search="" class="layui-input">
+                    <option value="">请选择或输入任课教师</option>
+                    <option th:each="teacher:${teacherList}" th:value="${teacher.id}" th:text="${teacher.name}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">学号区间</label>
-                <div class="layui-input-inline" style="width: 27%;">
-                    <input type="number" name="idStart" autocomplete="off" class="layui-input">
-                </div>
-                <div class="layui-form-mid">-</div>
-                <div class="layui-input-inline" style="width: 26.5%;">
-                    <input type="number" name="idEnd" autocomplete="off" class="layui-input">
+                <label class="layui-form-label">上课时间</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="time" autocomplete="off" lay-required class="layui-input">
                 </div>
             </div>
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <button class="layui-btn" lay-filter="generate" lay-submit>提交</button>
+                <button class="layui-btn" lay-filter="addCourse" lay-submit>提交</button>
             </div>
         </div>
     </form>
@@ -84,26 +110,28 @@
 <script src="/static/js/notice.js"></script>
 <script src="/static/js/ajax.js"></script>
 <script>
-    layui.use(['table', 'jquery', 'layer','laydate','form'], function () {
+    layui.use(['table', 'jquery', 'layer', 'laydate', 'form'], function () {
         var $ = layui.$,
             table = layui.table,
             layer = layui.layer,
-            laydate=layui.laydate,
-            form=layui.form;
+            laydate = layui.laydate,
+            form = layui.form;
 
-        var year=getSemester();
+        var year = getSemester('form');
 
         laydate.render({
             elem: '#year'
-            ,type: 'year'
-            ,range: '-'
-            ,value:year
-            ,btns: ['confirm']
-            ,done: function(value){
-                year=value;
+            , type: 'year'
+            , range: '-'
+            , value: year
+            , min:-365*2
+            , max:365*3
+            , btns: ['confirm']
+            , done: function (value) {
+                year = value;
                 tableIns.reload({
-                    where:{
-                        semester:value+' '+$('#semesterSelector option:selected').text()
+                    where: {
+                        semester: value + ' ' + $('#semesterSelector option:selected').text()
                     }
                 });
             }
@@ -111,23 +139,29 @@
 
         var tableIns = table.render({
             elem: '#table',
-            height: 'full-80',
-            toolbar:'#toolbar',
+            height: 'full-130',
+            toolbar: '#toolbar',
             defaultToolbar: ['print', 'exports'],
             cols: [
                 [
-                    {field:'id',title:'ID',sort:true},
+                    {field: 'id', title: 'ID', sort: true},
                     {field: 'name', title: '课程名称', sort: true},
-                    {field:'major',title:'所属专业',sort:true,templet:function (d) {
-                        return d.major.name;
-                        }},
-                    {field:'teacher',title:'任课教师',sort:true,templet:function (d) {
-                        return d.teacher.name;
-                        }},
-                    {field:'students',title:'选课人数',sort:true,templet:function (d) {
-                        return d.students===null?0:d.students.length;
-                        }},
-                    {field:'time',title:'上课时间'},
+                    {
+                        field: 'major', title: '所属专业', sort: true, templet: function (d) {
+                            return d.major.name;
+                        }
+                    },
+                    {
+                        field: 'teacher', title: '任课教师', sort: true, templet: function (d) {
+                            return d.teacher.name;
+                        }
+                    },
+                    {
+                        field: 'students', title: '选课人数', sort: true, templet: function (d) {
+                            return d.students === null ? 0 : d.students.length;
+                        }
+                    },
+                    {field: 'time', title: '上课时间'},
                     {title: '操作', align: 'center', width: '10%', toolbar: '#bar'}
                 ]
             ],
@@ -136,8 +170,8 @@
             },
             page: false,
             url: "/course/getCoursesBySemester",
-            where:{
-                semester:year+' '+$('#semesterSelector option:selected').text()
+            where: {
+                semester: year + ' ' + $('#semesterSelector option:selected').text()
             },
             response: {
                 statusCode: 200
@@ -146,7 +180,7 @@
                 return {
                     "code": res.code,
                     "data": res.data.list,
-                    "count":res.data.count
+                    "count": res.data.count
                 };
             }
         });
@@ -155,11 +189,11 @@
             var data = obj.data;
             switch (obj.event) {
                 case 'del':
-                    layer.confirm('真的删除么',{title:'删除用户',shadeClose:true}, function (index) {
+                    layer.confirm('真的删除么', {title: '删除用户', shadeClose: true}, function (index) {
                         layer.close(index);
-                        $.get('/course/del',{
+                        $.get('/course/del', {
                             id: data.id
-                        },function (res) {
+                        }, function (res) {
                             if (res.code === 200) {
                                 obj.del();
                                 notice_success('删除成功');
@@ -172,40 +206,84 @@
             }
         });
 
-        table.on('toolbar(table)',function (obj) {
+        table.on('toolbar(table)', function (obj) {
             var data = obj.data;
             switch (obj.event) {
                 case 'addCourse':
-
+                    layer.open({
+                        type: 1,
+                        title: '添加课程',
+                        content: $('#addCourseModel'),
+                        shadeClose: true,
+                        success: function (layero, index) {
+                            var schoolYear=getSemester('addCourse');
+                            laydate.render({
+                                elem: '#schoolYear'
+                                , type: 'year'
+                                , range: '-'
+                                , value: schoolYear
+                                , min:-365*2
+                                , max:365*3
+                                , btns: ['confirm']
+                                , done: function (value) {
+                                    schoolYear = value;
+                                }
+                            });
+                            form.val('setMajorForm',{
+                                major:$('#majorSelector  option:selected').val()
+                            });
+                            form.on('submit(addCourse)',function (data) {
+                                var course={
+                                    name:data.field.name,
+                                    teacher:{
+                                        id:data.field.teacher
+                                    },
+                                    major:{
+                                        id:data.field.majorId
+                                    },
+                                    semester:schoolYear + ' ' + $('#semester option:selected').text(),
+                                    time:data.field.time
+                                };
+                                ajax_post_json('/course/save',JSON.stringify(course),function (res) {
+                                    if (res.code===200){
+                                        notice_success('课程添加成功');
+                                        tableIns.reload();
+                                    }else
+                                        notice_error(res.msg);
+                                });
+                                layer.close(index);
+                                return false;
+                            })
+                        }
+                    });
                     break;
             }
         });
 
-        form.on('select(semester)',function () {
+        form.on('select(semester)', function () {
             tableIns.reload({
-                where:{
-                    semester:year+' '+$('#semesterSelector option:selected').text()
+                where: {
+                    semester: year + ' ' + $('#semesterSelector option:selected').text()
                 }
             });
         });
 
-        function getSemester() {
-            var date=new Date();
-            var year=date.getFullYear();
-            var month=date.getMonth();
-            if (month>=8||month<=1){
-                setSemester(1);
-                return year+" - "+(year+1);
-            }
-            else {
-                setSemester(2);
-                return (year-1)+" - "+year;
+        function getSemester(filter) {
+            var date = new Date();
+            var year = date.getFullYear();
+            var month = date.getMonth();
+            if (month >= 8 || month <= 1) {
+                setSemester(filter,1);
+                return year + " - " + (year + 1);
+            } else {
+                setSemester(filter,2);
+                return (year - 1) + " - " + year;
             }
         }
 
-        function setSemester(semester) {
-            form.val('form',{
-                semester:semester
+        function setSemester(filter,semester) {
+            form.val(filter, {
+                semester: semester
             })
         }
     })

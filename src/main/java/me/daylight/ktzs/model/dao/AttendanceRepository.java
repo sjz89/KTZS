@@ -15,9 +15,14 @@ import java.util.List;
  * @date 2019/03/01 00:07
  */
 public interface AttendanceRepository extends JpaRepository<Attendance,Long> {
-    Page<Attendance> findAttendancesByCourse(Course course, Pageable pageable);
+    Page<Attendance> findAttendancesByCourseOrderByCreateTimeDesc(Course course, Pageable pageable);
 
-    List<Attendance> findAttendancesByStudentOrderByCreateTimeDesc(User student);
+    Page<Attendance> findAttendancesByStudentOrderByCreateTimeDesc(User student,Pageable pageable);
+
+    List<Attendance> findAttendancesByStudentOrderByCreateTimeDesc(User user);
+
+    @Query("select a from Attendance a order by a.createTime desc ")
+    Page<Attendance> findAllOrderByCreateTimeDesc(Pageable pageable);
 
     @Query(value = "select count(*) from attendance where course_id=?1 and state=?2 and unique_id like ?3",nativeQuery = true)
     int countLatest(Long courseId,int state,String uniqueId);

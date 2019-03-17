@@ -6,7 +6,9 @@
     <link rel="stylesheet" href="/static/assets/layui/css/layui.css" media="all">
     <link rel="stylesheet" href="/static/assets/style/admin.css" media="all">
     <style type="text/css">
-        .layui-layer-page .layui-layer-content {overflow: inherit !important;}
+        .layui-layer-page .layui-layer-content {
+            overflow: inherit !important;
+        }
     </style>
 </head>
 <body layadmin-themealias="default">
@@ -15,11 +17,12 @@
         <form class="layui-form layui-form-pane layui-card-header layuiadmin-card-header-auto">
             <div class="layui-form-item">
                 <div class="layui-inline">
-                    <label class="layui-form-label">用户角色</label>
+                    <label class="layui-form-label">课程名称</label>
                     <div class="layui-input-inline">
-                        <select id="majorSelector" name="major" lay-search="" lay-filter="major" >
-                            <option th:each="major,iterStat:${majorList}" th:value="${major.id}" th:selected="${iterStat.index==0}" th:text="${major.name}"></option>
-                            <option value="">未分配</option>
+                        <select id="courseSelector" name="course" lay-search="" lay-filter="course">
+                            <option th:each="course,iterStat:${courseList}" th:value="${course.id}"
+                                    th:selected="${iterStat.index==0}"
+                                    th:text="${course.name}+'('+${course.semester}+')'"></option>
                         </select>
                     </div>
                 </div>
@@ -32,67 +35,15 @@
     </div>
 </div>
 
-<div id="generateStudentModel" style="display: none;margin: 20px;" align="center">
-    <form class="layui-form layui-form-pane" lay-filter="generateStudentForm">
-        <div class="layui-form-item">
-            <label class="layui-form-label">入学年份</label>
-            <div class="layui-input-inline">
-                <input type="text" name="year" class="layui-input" id="yearSelector" placeholder="请选择学生入学年份">
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">专业</label>
-            <div class="layui-input-inline">
-                <select name="majorId" lay-verify="required" lay-search="" class="layui-input">
-                    <option value="">请选择或输入专业</option>
-                    <option th:each="major:${majorList}" th:value="${major.id}" th:text="${major.name}"></option>
-                </select>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">学号区间</label>
-                <div class="layui-input-inline" style="width: 27%;">
-                    <input type="number" name="idStart" autocomplete="off" class="layui-input">
-                </div>
-                <div class="layui-form-mid">-</div>
-                <div class="layui-input-inline" style="width: 26.5%;">
-                    <input type="number" name="idEnd" autocomplete="off" class="layui-input">
-                </div>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <button class="layui-btn" lay-filter="generate" lay-submit>提交</button>
-            </div>
-        </div>
-    </form>
-</div>
-
-<div id="setMajorModel" style="display: none;margin: 20px;" align="center">
-    <form class="layui-form layui-form-pane" lay-filter="setMajorForm">
-        <div class="layui-form-item">
-            <label class="layui-form-label">专业</label>
-            <div class="layui-input-inline">
-                <select name="major" lay-verify="required" lay-search="" class="layui-input">
-                    <option th:each="major:${majorList}" th:value="${major.id}" th:text="${major.name}"></option>
-                </select>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <button class="layui-btn" lay-filter="setMajor" lay-submit>提交</button>
-            </div>
-        </div>
-    </form>
+<div id="setCourseStudentModel" style="display: none">
+    <table id="studentTable" lay-filter="studentTable"></table>
 </div>
 
 <script type="text/html" id="toolbar">
-    <a class="layui-btn layui-btn-sm" lay-event="generateStudent">批量生成学生账号</a>
+    <a class="layui-btn layui-btn-sm" lay-event="addCourseStudent">添加学生</a>
 </script>
 
 <script type="text/html" id="bar">
-    <a class="layui-btn layui-btn-xs" lay-event="setMajor">设置专业</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
 </script>
 
@@ -100,29 +51,22 @@
 <script src="/static/js/notice.js"></script>
 <script src="/static/js/ajax.js"></script>
 <script>
-    layui.use(['table', 'jquery', 'layer', 'form','laydate'], function () {
+    layui.use(['table', 'jquery', 'layer', 'form', 'laydate'], function () {
         var $ = layui.$,
             table = layui.table,
             layer = layui.layer,
-            form = layui.form,
-            laydate=layui.laydate;
+            form = layui.form;
 
         var tableIns = table.render({
             elem: '#table',
             height: 'full-160',
-            toolbar:'#toolbar',
+            toolbar: '#toolbar',
             defaultToolbar: ['print', 'exports'],
             cols: [
                 [
-                    {field:'id',title:'ID',sort:true},
-                    {field: 'idNumber', title: '学号/工号', sort: true},
+                    {field: 'id', title: 'ID', sort: true},
+                    {field: 'idNumber', title: '学号', sort: true},
                     {field: 'name', title: "姓名"},
-                    {field: 'role',title:'角色',templet:function (d) {
-                            if (d.role!==null)
-                                return d.role.name;
-                        }},
-                    {field: 'createTime', title: "创建时间", sort: true},
-                    {field: 'updateTime', title: "更新时间", sort: true},
                     {title: '操作', align: 'center', width: '10%', toolbar: '#bar'}
                 ]
             ],
@@ -130,8 +74,8 @@
                 none: '暂无相关数据'
             },
             page: false,
-            url: "/major/getUsersByMajor",
-            where: {majorId: $('#majorSelector  option:selected').val()},
+            url: "/course/getStudentsByCourse",
+            where: {courseId: $('#courseSelector  option:selected').val()},
             response: {
                 statusCode: 200
             },
@@ -147,12 +91,12 @@
             var data = obj.data;
             switch (obj.event) {
                 case 'del':
-                    layer.confirm('真的删除么',{title:'删除用户',shadeClose:true}, function (index) {
+                    layer.confirm('真的删除么', {title: '删除用户', shadeClose: true}, function (index) {
                         layer.close(index);
-                        $.post('/authority/delUser',{
-                            id: data.id,
-                            idNumber: data.idNumber
-                        },function (res) {
+                        $.get('/course/delStudent', {
+                            courseId:$('#courseSelector  option:selected').val(),
+                            studentId: data.id
+                        }, function (res) {
                             if (res.code === 200) {
                                 obj.del();
                                 notice_success('删除成功');
@@ -162,65 +106,69 @@
                         });
                     });
                     break;
-                case 'setMajor':
-                    layer.open({
-                        type: 1,
-                        title: '设置专业',
-                        content: $('#setMajorModel'),
-                        shadeClose: true,
-                        success: function (layero, index) {
-                            form.val('setMajorForm',{
-                                major:$('#majorSelector  option:selected').val()
-                            });
-                            form.on('submit(setMajor)',function (data) {
-                                $.get('/major/setMajor',{userId:obj.data.id,majorId:data.field.major},function (res) {
-                                    if (res.code===200){
-                                        notice_success('专业设置成功');
-                                        tableIns.reload();
-                                    }else
-                                        notice_error(res.msg);
-                                });
-                                layer.close(index);
-                                return false;
-                            })
-                        }
-                    });
-                    break;
             }
         });
 
-        table.on('toolbar(table)',function (obj) {
+        table.on('toolbar(table)', function (obj) {
             switch (obj.event) {
-                case 'generateStudent':
+                case 'addCourseStudent':
                     layer.open({
                         type: 1,
-                        title: '批量生成学生账号',
-                        content: $('#generateStudentModel'),
+                        title: '添加学生',
+                        content: $('#setCourseStudentModel'),
+                        area: ['600px', '500px'],
                         shadeClose: true,
+                        btn: ['确定', '取消'],
                         success: function (layero, index) {
-                            laydate.render({
-                                elem: '#yearSelector'
-                                ,type: 'year'});
-                            form.on('submit(generate)',function (data) {
-                                $.post('/authority/generateStudents',data.field,function (res) {
-                                    if (res.code===200){
-                                        notice_success('操作成功');
+                            table.render({
+                                elem: '#studentTable',
+                                height: '400',
+                                toolbar: false,
+                                cols: [
+                                    [
+                                        {type:'checkbox',fixed:'left'},
+                                        {field: 'id', title: 'ID',width:'10%', sort: true},
+                                        {field: 'idNumber', title: '学号', sort: true},
+                                        {field: 'name', title: "姓名"}
+                                    ]
+                                ],
+                                text: {
+                                    none: '暂无相关数据'
+                                },
+                                page: false,
+                                url: "/course/getStudentUnChoose",
+                                where: {courseId: $('#courseSelector  option:selected').val()},
+                                response: {
+                                    statusCode: 200
+                                },
+                                parseData: function (res) {
+                                    return {
+                                        "code": res.code,
+                                        "data": res.data
+                                    };
+                                }
+                            })
+                        },
+                        yes: function (index, layero) {
+                            var students=table.checkStatus('studentTable');
+                            ajax_post_json('/course/addStudents?courseId=' + $('#courseSelector  option:selected').val(),
+                                JSON.stringify(students.data), function (res) {
+                                    if (res.code === 200) {
                                         tableIns.reload();
-                                    }else
+                                        notice_success('学生添加成功');
+                                    } else
                                         notice_error(res.msg);
                                 });
-                                layer.close(index);
-                                return false;
-                            })
+                            layer.close(index);
                         }
                     });
                     break;
             }
         });
 
-        form.on('select(major)', function (data) {
+        form.on('select(course)', function (data) {
             tableIns.reload({
-                where: {majorId: $('#majorSelector  option:selected').val()}
+                where: {courseId: $('#courseSelector  option:selected').val()}
             });
         })
     })

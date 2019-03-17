@@ -66,6 +66,8 @@ public class PushController {
         if (!courseService.isCourseExist(courseId))
             return RetResponse.error("课程不存在");
         Notice notice=noticeService.getLatestByCourseId(courseId);
+        if (notice==null)
+            return RetResponse.error("无最近通知");
         NoticeDto noticeDto=new NoticeDto();
         noticeDto.setId(notice.getId());
         noticeDto.setContent(notice.getContent());

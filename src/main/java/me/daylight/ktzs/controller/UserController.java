@@ -4,13 +4,11 @@ import me.daylight.ktzs.annotation.ApiDoc;
 import me.daylight.ktzs.authority.SessionUtil;
 import me.daylight.ktzs.model.dto.BaseResponse;
 import me.daylight.ktzs.model.entity.User;
+import me.daylight.ktzs.service.CourseService;
 import me.daylight.ktzs.service.UserService;
 import me.daylight.ktzs.utils.RetResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Daylight
@@ -21,6 +19,9 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CourseService courseService;
 
     @ApiDoc(description = "获取用户信息")
     @GetMapping("/getSelfInfo")
@@ -55,5 +56,29 @@ public class UserController {
             loginUser.setPhone(user.getPhone());
         userService.saveUser(loginUser);
         return RetResponse.success();
+    }
+
+    @ApiDoc(description = "查看用户信息")
+    @GetMapping("/getUserInfo")
+    public BaseResponse getUserInfo(String idNumber){
+        if (!userService.isUserExist(idNumber))
+            return RetResponse.error("用户不存在");
+        User user=userService.findUserByIdNumber(idNumber);
+        user.setPassword(null);
+        user.getRole().setPermissions(null);
+        if (!SessionUtil.getInstance().isMobile())
+            return RetResponse.success(user);
+        return RetResponse.success(RetResponse.transformUser(user));
+    }
+
+    @ApiDoc(description = "根据课程查看教师信息")
+    @GetMapping("/getTeacherInfo")
+    public BaseResponse getTeacherInfo(Long courseId){
+        if (!courseService.isCourseExist(courseId))
+            return RetResponse.error("课程不存在");
+        User teacher=courseService.findCourseById(courseId).getTeacher();
+        if (!SessionUtil.getInstance().isMobile())
+            return RetResponse.success(teacher);
+        return RetResponse.success(RetResponse.transformUser(teacher));
     }
 }

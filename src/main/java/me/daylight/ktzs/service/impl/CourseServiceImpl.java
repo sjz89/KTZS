@@ -1,8 +1,10 @@
 package me.daylight.ktzs.service.impl;
 
 import me.daylight.ktzs.model.dao.CourseRepository;
+import me.daylight.ktzs.model.dao.UserRepository;
 import me.daylight.ktzs.model.entity.Course;
 import me.daylight.ktzs.model.entity.Major;
+import me.daylight.ktzs.model.entity.User;
 import me.daylight.ktzs.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,9 @@ import java.util.List;
 public class CourseServiceImpl implements CourseService {
     @Autowired
     private CourseRepository courseRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public Course saveCourse(Course course) {
@@ -48,6 +53,17 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public List<Course> getAllCourse() {
+        return courseRepository.findAll();
+    }
+
+
+    @Override
+    public List<User> findStudentUnChooseCourse(Long courseId) {
+        return userRepository.findStudentUnChoose(courseId);
+    }
+
+    @Override
     public List<Course> findCoursesByStudentAndSemester(String semester, Long studentId) {
         return courseRepository.findCoursesByStudentAndSemester(studentId, semester);
     }
@@ -60,5 +76,10 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public List<Course> findCoursesByMajorAndSemester(String semester, Major major) {
         return courseRepository.findCoursesBySemesterAndMajor(semester, major);
+    }
+
+    @Override
+    public void delStudent(Long courseId, Long studentId) {
+        courseRepository.deleteStudent(courseId, studentId);
     }
 }
