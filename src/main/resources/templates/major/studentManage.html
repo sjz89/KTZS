@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>用户专业管理</title>
+    <title>本专业学生管理</title>
     <link rel="stylesheet" href="/static/assets/layui/css/layui.css" media="all">
     <link rel="stylesheet" href="/static/assets/style/admin.css" media="all">
     <style type="text/css">
@@ -38,7 +38,9 @@
                     {field: 'name', title: "姓名"},
                     {field:'phone',title:'手机号',templet:function(d){
                         if (d.phone===null)
-                            return '未填写'
+                            return '未填写';
+                        else
+                            return d.phone;
                         }},
                     {field: 'createTime', title: "创建时间", sort: true},
                     {field: 'updateTime', title: "更新时间", sort: true}
