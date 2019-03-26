@@ -45,6 +45,15 @@ public class NoticeServiceImpl implements NoticeService {
         return noticeRepository.getLatestByCourseId(id);
     }
 
+    @Override
+    public List<NoticeDto> getNoticesByCourse(Long courseId) {
+        List<Object[]> objects=noticeRepository.getNoticeDtoByCourse(courseId);
+        List<NoticeDto> noticeDtos=new ArrayList<>();
+        for (Object[] object:objects)
+            noticeDtos.add(transformNotice(object));
+        return noticeDtos;
+    }
+
     private NoticeDto transformNotice(Object[] object){
         NoticeDto noticeDto=new NoticeDto();
         noticeDto.setId(((BigInteger)object[0]).longValue());

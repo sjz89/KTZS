@@ -17,4 +17,6 @@ public interface NoticeService {
     List<NoticeDto> findNoticesByStudent(Long studentId);
 
     Notice getLatestByCourseId(Long id);
+
+    List<NoticeDto> getNoticesByCourse(Long courseId);
 }

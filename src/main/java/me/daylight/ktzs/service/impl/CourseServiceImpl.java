@@ -1,6 +1,8 @@
 package me.daylight.ktzs.service.impl;
 
+import me.daylight.ktzs.model.dao.AttendanceRepository;
 import me.daylight.ktzs.model.dao.CourseRepository;
+import me.daylight.ktzs.model.dao.MajorRepository;
 import me.daylight.ktzs.model.dao.UserRepository;
 import me.daylight.ktzs.model.entity.Course;
 import me.daylight.ktzs.model.entity.Major;
@@ -26,6 +28,12 @@ public class CourseServiceImpl implements CourseService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private MajorRepository majorRepository;
+
+    @Autowired
+    private AttendanceRepository attendanceRepository;
+
     @Override
     public Course saveCourse(Course course) {
         return courseRepository.saveAndFlush(course);
@@ -38,7 +46,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public void delCourse(Long courseId) {
-        courseRepository.delete(courseRepository.getOne(courseId));
+        Course course=courseRepository.getOne(courseId);
+        attendanceRepository.deleteAttendancesByCourse(course);
+        courseRepository.delete(course);
     }
 
     @Override
@@ -57,6 +67,10 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.findAll();
     }
 
+    @Override
+    public List<Course> getCoursesByMajor(Long majorId) {
+        return courseRepository.findCoursesByMajor(majorRepository.getOne(majorId));
+    }
 
     @Override
     public List<User> findStudentUnChooseCourse(Long courseId) {
@@ -81,5 +95,15 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void delStudent(Long courseId, Long studentId) {
         courseRepository.deleteStudent(courseId, studentId);
+    }
+
+    @Override
+    public List<Course> findCoursesBySemesterAndWeekDay(String semester, String weekDay) {
+        return courseRepository.findAllBySemesterAndTimeLike(semester,weekDay);
+    }
+
+    @Override
+    public List<Course> findCoursesBySemesterAndWeekDayAndMajor(String semester, String weekDay, Major major) {
+        return courseRepository.findAllBySemesterAndTimeLikeAndMajor(semester, weekDay, major);
     }
 }

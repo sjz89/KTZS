@@ -2,7 +2,6 @@ package me.daylight.ktzs.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import me.daylight.ktzs.model.enums.AttendanceState;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -81,12 +80,12 @@ public class Attendance implements Serializable {
     }
 
     @JsonIgnore
-    public static Attendance generateValue(String uniqueId, Course course, User student){
+    public static Attendance generateValue(String uniqueId, Course course, User student,int state){
         Attendance attendance=new Attendance();
         attendance.uniqueId=uniqueId;
         attendance.course=course;
         attendance.student=student;
-        attendance.state=AttendanceState.UNSIGNED.getState();
+        attendance.state=state;
         attendance.createTime=new Date();
         return attendance;
     }

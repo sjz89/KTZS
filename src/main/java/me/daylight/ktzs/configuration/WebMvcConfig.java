@@ -3,6 +3,7 @@ package me.daylight.ktzs.configuration;
 import me.daylight.ktzs.annotation.ApiDoc;
 import me.daylight.ktzs.authority.AuthorityInterceptor;
 import me.daylight.ktzs.model.dto.Api;
+import me.daylight.ktzs.model.enums.RoleList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.ConfigurableWebServerFactory;
 import org.springframework.boot.web.server.ErrorPage;
@@ -81,6 +82,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 api.setUrl(url);
             }
             api.setDescription(annotation.description());
+            List<String> roleList=new ArrayList<>();
+            for (RoleList role:annotation.role())
+                roleList.add(role.name());
+            api.setRole(roleList);
             Parameter[] parameters = method.getMethod().getParameters();
             StringBuilder params= new StringBuilder();
             for (Parameter parameter:parameters){

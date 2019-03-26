@@ -11,6 +11,8 @@ import java.util.Date;
 public class AttendanceRecord {
     private Long id;
 
+    private String studentName;
+
     private String courseName;
 
     private int state;
@@ -25,12 +27,27 @@ public class AttendanceRecord {
         this.time = time;
     }
 
+    public AttendanceRecord(Long id,int state,String studentName,Date time){
+        this.id=id;
+        this.studentName = studentName;
+        this.state = state;
+        this.time = time;
+    }
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
     }
 
     public String getCourseName() {

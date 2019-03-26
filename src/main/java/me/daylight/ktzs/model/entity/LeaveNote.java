@@ -20,8 +20,11 @@ public class LeaveNote implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private Course course;
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    private Date startDate;
+
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    private Date endDate;
 
     @ManyToOne
     private User student;
@@ -46,14 +49,6 @@ public class LeaveNote implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Course getCourse() {
-        return course;
-    }
-
-    public void setCourse(Course course) {
-        this.course = course;
     }
 
     public User getStudent() {
@@ -102,5 +97,21 @@ public class LeaveNote implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
     }
 }

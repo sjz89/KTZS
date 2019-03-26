@@ -161,7 +161,27 @@
                             return d.students === null ? 0 : d.students.length;
                         }
                     },
-                    {field: 'time', title: '上课时间'},
+                    {field: 'time', title: '上课时间',templet:function (d) {
+                        var weekDay;
+                        switch (d.time.split(' ')[0]) {
+                            case '01':
+                                weekDay='周一 ';
+                                break;
+                            case '02':
+                                weekDay='周二 ';
+                                break;
+                            case '03':
+                                weekDay='周三 ';
+                                break;
+                            case '04':
+                                weekDay='周四 ';
+                                break;
+                            case '05':
+                                weekDay='周五 ';
+                                break;
+                        }
+                            return weekDay+d.time.split(" ")[1]+'节'
+                        }},
                     {title: '操作', align: 'center', width: '10%', toolbar: '#bar'}
                 ]
             ],

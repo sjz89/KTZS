@@ -24,6 +24,8 @@ public interface CourseService {
 
     List<Course> getAllCourse();
 
+    List<Course> getCoursesByMajor(Long majorId);
+
     List<User> findStudentUnChooseCourse(Long courseId);
 
     List<Course> findCoursesByStudentAndSemester(String semester, Long studentId);
@@ -33,4 +35,8 @@ public interface CourseService {
     List<Course> findCoursesByMajorAndSemester(String semester, Major major);
 
     void delStudent(Long courseId,Long studentId);
+
+    List<Course> findCoursesBySemesterAndWeekDay(String semester,String weekDay);
+
+    List<Course> findCoursesBySemesterAndWeekDayAndMajor(String semester,String weekDay,Major major);
 }

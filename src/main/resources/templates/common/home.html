@@ -1,10 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <title>主页</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/assets/style/admin.css" media="all">
 </head>
 <body>
 
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+
+        <div class="layui-col-sm6 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    旷课统计
+                    <span class="layui-badge layui-bg-blue layuiadmin-badge">日</span>
+                </div>
+                <div class="layui-card-body layuiadmin-card-list">
+                    <p class="layuiadmin-big-font" th:text="${absentCount}"></p>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-sm6 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    请假统计
+                    <span class="layui-badge layui-bg-cyan layuiadmin-badge">日</span>
+                </div>
+                <div class="layui-card-body layuiadmin-card-list">
+                    <p class="layuiadmin-big-font" th:text="${leaveCount}"></p>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-sm6 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    请假申请
+                    <span class="layui-badge layui-bg-green layuiadmin-badge">New</span>
+                </div>
+                <div class="layui-card-body layuiadmin-card-list">
+                    <p class="layuiadmin-big-font" th:text="${leaveApplication}"></p>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-sm6 layui-col-md3">
+            <div class="layui-card">
+                <div class="layui-card-header">
+                    设备更换
+                    <span class="layui-badge layui-bg-orange layuiadmin-badge">New</span>
+                </div>
+                <div class="layui-card-body layuiadmin-card-list">
+                    <p class="layuiadmin-big-font" th:text="${deviceReplace}"></p>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-sm8">
+            <div class="layui-card">
+                <div class="layui-card-header">今日课堂签到情况</div>
+                <div class="layui-card-body">
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <table id="table" lay-filter="table"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="layui-col-sm4">
+            <div class="layui-card">
+                <div class="layui-card-header">今日课表</div>
+                <div class="layui-card-body">
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <table id="table2" lay-filter="table2"></table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/static/assets/layui/layui.js"></script>
+<script>
+    layui.use(['jquery','table'],function () {
+        var $=layui.$,
+            table=layui.table;
+
+        table.render({
+            elem: '#table',
+            height:'full',
+            toolbar:false,
+            cols: [
+                [
+                    {field: 'uniqueId', title: '签到码',align:'center'},
+                    {field: 'courseName', title: "课程名称",align:'center'},
+                    {field: 'teacherName', title: "任课教师",align:'center'},
+                    {field: 'count', title: "签到人数",align:'center'},
+                    {field:'allCount',title:'总人数',align:'center'}
+                ]
+            ],
+            text: {
+                none: '今日尚无签到'
+            },
+            skin:'line',
+            page: false,
+            url: "/attendance/getAttendanceOfToday",
+            response: {
+                statusCode: 200
+            },
+            parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "data": res.data
+                };
+            }
+        });
+
+        table.render({
+            elem: '#table2',
+            height:'full',
+            toolbar:false,
+            cols: [
+                [
+                    {field: 'name', title: '课程名称',align:'center'},
+                    {field: 'teacher', title: "任课教师",align:'center',templet:function(d){
+                        return d.teacher.name;
+                        }},
+                    {field: 'time', title: "上课时间",align:'center',templet:function (d) {
+                        return d.time.split(" ")[1]+'节'
+                        }}
+                ]
+            ],
+            text: {
+                none: '今日没有课'
+            },
+            skin:'line',
+            page: false,
+            url: "/course/getCourseTableOfToday",
+            response: {
+                statusCode: 200
+            },
+            parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "data": res.data
+                };
+            }
+        });
+    })
+</script>
 </body>
 </html>

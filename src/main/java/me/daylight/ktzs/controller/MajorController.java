@@ -1,9 +1,11 @@
 package me.daylight.ktzs.controller;
 
 import me.daylight.ktzs.annotation.ApiDoc;
+import me.daylight.ktzs.authority.SessionUtil;
 import me.daylight.ktzs.model.dto.BaseResponse;
 import me.daylight.ktzs.model.entity.Major;
 import me.daylight.ktzs.model.entity.User;
+import me.daylight.ktzs.model.enums.RoleList;
 import me.daylight.ktzs.service.UserService;
 import me.daylight.ktzs.utils.RetResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,14 +79,20 @@ public class MajorController {
         Major major=userService.findMajorById(majorId);
         List<User> users=major.getUsers();
         users.sort(Comparator.comparing(User::getIdNumber));
-//        java list sort lambda表达式
-//        原式如下
-//        new Comparator<User>() {
-//            @Override
-//            public int compare(User o1, User o2) {
-//                return o1.getIdNumber().compareTo(o2.getIdNumber());
-//            }
-//        };
+        /*java list sort lambda表达式
+        原式如下
+        new Comparator<User>() {
+            @Override
+            public int compare(User o1, User o2) {
+                return o1.getIdNumber().compareTo(o2.getIdNumber());
+            }
+        };*/
         return RetResponse.success(users);
+    }
+
+    @ApiDoc(description = "获取本专业学生",role = RoleList.Instructor)
+    @GetMapping("/getStudentsOfMyMajor")
+    public BaseResponse getStudentsOfMyMajor(){
+        return RetResponse.success(userService.findStudents(SessionUtil.getInstance().getUser().getId()));
     }
 }

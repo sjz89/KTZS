@@ -7,8 +7,11 @@ import me.daylight.ktzs.model.dto.CourseDto;
 import me.daylight.ktzs.model.entity.Course;
 import me.daylight.ktzs.model.entity.Major;
 import me.daylight.ktzs.model.entity.User;
+import me.daylight.ktzs.model.enums.RoleList;
 import me.daylight.ktzs.service.CourseService;
+import me.daylight.ktzs.service.LeaveService;
 import me.daylight.ktzs.service.UserService;
+import me.daylight.ktzs.utils.DateUtil;
 import me.daylight.ktzs.utils.RetResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,6 +28,9 @@ import java.util.*;
 public class CourseController {
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private LeaveService leaveService;
 
     @Autowired
     private UserService userService;
@@ -85,17 +91,11 @@ public class CourseController {
         return RetResponse.success(objectMap);
     }
 
-    @ApiDoc(description = "查看我的课程")
+    @ApiDoc(description = "查看我的课程",role = {RoleList.Teacher,RoleList.Student})
     @GetMapping("/getMyCourses")
     public BaseResponse getMyCourses(String semester){
-        if (semester==null){
-            Calendar calendar=Calendar.getInstance(Locale.CHINESE);
-            int year=calendar.get(Calendar.YEAR);
-            if (calendar.get(Calendar.MONTH)>=8||calendar.get(Calendar.MONTH)<=1)
-                semester=year+" - "+ (year + 1)+" 01";
-            else
-                semester=(year-1)+" - "+ year+" 02";
-        }
+        if (semester==null)
+            semester=getSemester();
         List<Course> courses;
         if (SessionUtil.getInstance().getUser().getRole().getName().equals("student"))
             courses=courseService.findCoursesByStudentAndSemester(semester,SessionUtil.getInstance().getUser().getId());
@@ -115,7 +115,7 @@ public class CourseController {
         return RetResponse.success(courseService.findCoursesByMajorAndSemester(semester, major));
     }
 
-    @ApiDoc(description = "查看选修课程的学生")
+    @ApiDoc(description = "查看选修课程的学生",role = {RoleList.Teacher,RoleList.Student})
     @GetMapping("/getStudentsByCourse")
     public BaseResponse findStudentsByCourse(Long courseId){
         if (!courseService.isCourseExist(courseId))
@@ -123,8 +123,15 @@ public class CourseController {
         List<User> students=courseService.findCourseById(courseId).getStudents();
         students.sort(Comparator.comparing(User::getIdNumber));
         List<Map<String,Object>> users=new ArrayList<>();
-        for (User student:students)
-            users.add(RetResponse.transformUser(student));
+        for (User student:students) {
+            Map<String,Object> map=RetResponse.transformUser(student);
+            String time=courseService.findCourseById(courseId).getTime();
+            Integer weekDay=Integer.parseInt(time.split(" ")[0].substring(1));
+            Calendar calendar=Calendar.getInstance();
+            calendar.get(Calendar.DAY_OF_WEEK);
+            map.put("isLeave",leaveService.isStudentLeave(student.getId())&&weekDay.equals(DateUtil.getDayOfWeek()));
+            users.add(map);
+        }
         return RetResponse.success(users);
     }
 
@@ -134,5 +141,25 @@ public class CourseController {
         if (!courseService.isCourseExist(courseId))
             return RetResponse.error("课程不存在");
         return RetResponse.success(courseService.findStudentUnChooseCourse(courseId));
+    }
+
+    @ApiDoc(description = "获取今日课表",role = {RoleList.Admin,RoleList.Instructor})
+    @GetMapping("/getCourseTableOfToday")
+    public BaseResponse getCourseTableOfToday(){
+        int weekDay=DateUtil.getDayOfWeek();
+        if (SessionUtil.getInstance().getUser().getRole().getName().equals("admin"))
+            return RetResponse.success(courseService.findCoursesBySemesterAndWeekDay(getSemester(),"%"+String.format("%02d",weekDay)+" %"));
+        else
+            return RetResponse.success(courseService.findCoursesBySemesterAndWeekDayAndMajor(getSemester(),"%"+String.format("%02d",weekDay)+" %",
+                    userService.findMajorByUserId(SessionUtil.getInstance().getUser().getId())));
+    }
+
+    private String getSemester(){
+        Calendar calendar=Calendar.getInstance(Locale.CHINESE);
+        int year=calendar.get(Calendar.YEAR);
+        if (calendar.get(Calendar.MONTH)>=8||calendar.get(Calendar.MONTH)<=1)
+            return year+" - "+ (year + 1)+" 01";
+        else
+            return (year-1)+" - "+ year+" 02";
     }
 }

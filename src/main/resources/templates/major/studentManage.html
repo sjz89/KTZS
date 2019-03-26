@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户专业管理</title>
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/assets/style/admin.css" media="all">
+    <style type="text/css">
+        .layui-layer-page .layui-layer-content {overflow: inherit !important;}
+    </style>
+</head>
+<body layadmin-themealias="default">
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <table id="table" lay-filter="table"></table>
+        </div>
+
+    </div>
+</div>
+
+<script src="/static/assets/layui/layui.js"></script>
+<script src="/static/js/notice.js"></script>
+<script src="/static/js/ajax.js"></script>
+<script>
+    layui.use(['table', 'jquery'], function () {
+        var $ = layui.$,
+            table = layui.table;
+
+        var tableIns = table.render({
+            elem: '#table',
+            height: 'full',
+            defaultToolbar: ['print', 'exports'],
+            cols: [
+                [
+                    {field:'id',title:'ID',sort:true},
+                    {field: 'idNumber', title: '学号', sort: true},
+                    {field: 'name', title: "姓名"},
+                    {field:'phone',title:'手机号',templet:function(d){
+                        if (d.phone===null)
+                            return '未填写'
+                        }},
+                    {field: 'createTime', title: "创建时间", sort: true},
+                    {field: 'updateTime', title: "更新时间", sort: true}
+                ]
+            ],
+            text: {
+                none: '暂无相关数据'
+            },
+            skin:'line',
+            page: false,
+            url: "/major/getStudentsOfMyMajor",
+            response: {
+                statusCode: 200
+            },
+            parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "data": res.data
+                };
+            }
+        });
+
+    })
+</script>
+</body>
+</html>

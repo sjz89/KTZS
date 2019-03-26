@@ -33,4 +33,10 @@ public interface CourseRepository extends JpaRepository<Course,Long> {
     @Modifying
     @Query(value = "delete from course_students where course_id=?1 and students_id=?2",nativeQuery = true)
     void deleteStudent(Long courseId,Long studentId);
+
+    List<Course> findCoursesByMajor(Major major);
+
+    List<Course> findAllBySemesterAndTimeLike(String semester,String weekDay);
+
+    List<Course> findAllBySemesterAndTimeLikeAndMajor(String semester,String weekDay,Major major);
 }

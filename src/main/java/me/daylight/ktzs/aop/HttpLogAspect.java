@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -27,8 +28,8 @@ import java.util.Objects;
  * @author Daylight
  * @date 2019/01/30 01:01
  */
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class HttpLogAspect {
     private Logger logger= LoggerFactory.getLogger(getClass());
 
@@ -42,10 +43,13 @@ public class HttpLogAspect {
 
     @Before("webLog()")
     public void doBefore(JoinPoint joinPoint) {
-        httpRecord =new HttpRecord();
-        logger.info("-------------------------------------------------------------------------------------");
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = Objects.requireNonNull(attributes).getRequest();
+        if (new AntPathMatcher().match("/file/**",request.getRequestURI()))
+            return;
+
+        httpRecord =new HttpRecord();
+        logger.info("-------------------------------------------------------------------------------------");
 
         logger.info("-->URL:" + request.getRequestURI());
         logger.info("-->HTTP_METHOD:" + request.getMethod());
@@ -76,6 +80,8 @@ public class HttpLogAspect {
 
     @AfterReturning(returning = "ret", pointcut = "webLog()")
     public void doAfterReturning(Object ret) {
+        if (ret==null||httpRecord==null)
+            return;
         // 处理完请求，返回内容
         httpRecord.setRESPONSE(JSON.toJSONString(ret));
 //        redisTemplate.opsForList().leftPush("httpRecord",httpRecord);

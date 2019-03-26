@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author daylight
@@ -25,7 +26,21 @@ public interface AttendanceService {
 
     Page<Attendance> findAllPageable(int page,int limit);
 
+    Page<Attendance> findAllByMajorPageable(Long userId,int page,int limit);
+
     int countByCourseAndStateAndUniqueId(Long courseId, int state, String uniqueId);
 
     Attendance getLatestByCourseId(Long id);
+
+    List<Map<String,Object>> getRecordOfTeacher(Long userId);
+
+    List<Attendance> getRecordsByUniqueId(String uniqueId);
+
+    int getAbsentCountOfToday();
+
+    int getAbsentCountOfTodayByCourseIn(List<Course> courses);
+
+    List<Map<String,Object>> getRecordOfToday();
+
+    List<Map<String,Object>> getRecordOfTodayByMajorId(Long majorId);
 }

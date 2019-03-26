@@ -5,6 +5,7 @@ package me.daylight.ktzs.model.enums;
  * @date 2019/02/18 02:12
  */
 public enum AttendanceState {
+    LEAVE(2),
 
     SIGNED(1),
 
@@ -16,7 +17,7 @@ public enum AttendanceState {
         this.state=state;
     }
     
-    public int getState(){
+    public int getCode(){
         return this.state;
     }
 }

@@ -20,11 +20,18 @@ public class Homework {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
+    private String content;
+
     @ManyToOne
     private Course course;
 
     @ManyToMany
     private List<UploadFile> files;
+
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd")
+    private Date endTime;
 
     @CreatedDate
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
@@ -40,6 +47,22 @@ public class Homework {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public Course getCourse() {
@@ -64,6 +87,14 @@ public class Homework {
 
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 
     public Date getUpdateTime() {

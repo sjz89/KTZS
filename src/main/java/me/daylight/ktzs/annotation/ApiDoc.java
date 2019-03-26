@@ -1,5 +1,7 @@
 package me.daylight.ktzs.annotation;
 
+import me.daylight.ktzs.model.enums.RoleList;
+
 import java.lang.annotation.*;
 
 /**
@@ -11,4 +13,5 @@ import java.lang.annotation.*;
 @Documented
 public @interface ApiDoc {
     String description();
+    RoleList[] role() default RoleList.Admin;
 }

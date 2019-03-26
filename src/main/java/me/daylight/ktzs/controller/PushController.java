@@ -9,6 +9,7 @@ import me.daylight.ktzs.model.dto.WsMsg;
 import me.daylight.ktzs.model.entity.Course;
 import me.daylight.ktzs.model.entity.Notice;
 import me.daylight.ktzs.model.entity.User;
+import me.daylight.ktzs.model.enums.RoleList;
 import me.daylight.ktzs.service.CourseService;
 import me.daylight.ktzs.service.NoticeService;
 import me.daylight.ktzs.utils.RetResponse;
@@ -36,7 +37,7 @@ public class PushController {
     @Autowired
     private CourseService courseService;
 
-    @ApiDoc(description = "教师发送通知")
+    @ApiDoc(description = "教师发送通知",role = RoleList.Teacher)
     @PostMapping("/push")
     public BaseResponse push(@RequestBody Notice notice){
 
@@ -60,7 +61,7 @@ public class PushController {
         return RetResponse.success();
     }
 
-    @ApiDoc(description = "获取课程最新通知")
+    @ApiDoc(description = "获取课程最新通知",role = {RoleList.Teacher,RoleList.Student})
     @GetMapping("/getLatestNotice")
     public BaseResponse getLatestNotice(Long courseId){
         if (!courseService.isCourseExist(courseId))
@@ -75,9 +76,17 @@ public class PushController {
         return RetResponse.success(noticeDto);
     }
 
-    @ApiDoc(description = "获取学生收到的通知")
+    @ApiDoc(description = "获取学生收到的通知",role = RoleList.Student)
     @GetMapping("/getNoticesForMe")
     public BaseResponse getNoticesForMe(){
         return RetResponse.success(noticeService.findNoticesByStudent(SessionUtil.getInstance().getUser().getId()));
+    }
+
+    @ApiDoc(description = "根据课程获取通知",role = {RoleList.Teacher,RoleList.Student})
+    @GetMapping("/getNoticesByCourse")
+    public BaseResponse getNoticesByCourse(Long courseId){
+        if (!courseService.isCourseExist(courseId))
+            return RetResponse.error("课程不存在");
+        return RetResponse.success(noticeService.getNoticesByCourse(courseId));
     }
 }

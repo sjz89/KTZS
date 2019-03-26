@@ -4,6 +4,7 @@ import me.daylight.ktzs.annotation.ApiDoc;
 import me.daylight.ktzs.authority.SessionUtil;
 import me.daylight.ktzs.model.dto.BaseResponse;
 import me.daylight.ktzs.model.entity.User;
+import me.daylight.ktzs.model.enums.RoleList;
 import me.daylight.ktzs.service.CourseService;
 import me.daylight.ktzs.service.UserService;
 import me.daylight.ktzs.utils.RetResponse;
@@ -23,7 +24,7 @@ public class UserController {
     @Autowired
     private CourseService courseService;
 
-    @ApiDoc(description = "获取用户信息")
+    @ApiDoc(description = "获取用户信息",role = RoleList.All)
     @GetMapping("/getSelfInfo")
     public BaseResponse getSelfInfo(){
         if (!SessionUtil.getInstance().isUserLogin())
@@ -35,7 +36,7 @@ public class UserController {
         return RetResponse.success(RetResponse.transformUser(user));
     }
 
-    @ApiDoc(description = "更改密码")
+    @ApiDoc(description = "更改密码",role = RoleList.All)
     @PostMapping("/changePwd")
     public BaseResponse changePwd(String oldPwd,String password){
         if (!userService.checkPassword(SessionUtil.getInstance().getIdNumber(),oldPwd))
@@ -46,7 +47,7 @@ public class UserController {
         return RetResponse.success();
     }
 
-    @ApiDoc(description = "更改用户信息")
+    @ApiDoc(description = "更改用户信息",role = RoleList.All)
     @PostMapping("/changeInfo")
     public BaseResponse changeUserInfo(@RequestBody User user){
         User loginUser=userService.findUserByIdNumber(SessionUtil.getInstance().getIdNumber());
@@ -58,7 +59,7 @@ public class UserController {
         return RetResponse.success();
     }
 
-    @ApiDoc(description = "查看用户信息")
+    @ApiDoc(description = "查看用户信息",role = RoleList.All)
     @GetMapping("/getUserInfo")
     public BaseResponse getUserInfo(String idNumber){
         if (!userService.isUserExist(idNumber))
@@ -71,7 +72,7 @@ public class UserController {
         return RetResponse.success(RetResponse.transformUser(user));
     }
 
-    @ApiDoc(description = "根据课程查看教师信息")
+    @ApiDoc(description = "根据课程查看教师信息",role = RoleList.All)
     @GetMapping("/getTeacherInfo")
     public BaseResponse getTeacherInfo(Long courseId){
         if (!courseService.isCourseExist(courseId))

@@ -23,4 +23,7 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
             "from notice,course,user where course.id=notice.course_id and user.id=course.teacher_id and notice.id=?1 ",nativeQuery = true)
     List<Object[]> findNoticesById(Long id);
 
+    @Query(value = "select notice.id as id,notice.content as content,notice.create_time as time,course.name as courseName,user.name as teacherName " +
+            "from notice,course,user where course.id =?1 and user.id=course.teacher_id and notice.course_id=?1 order by notice.create_time desc",nativeQuery = true)
+    List<Object[]> getNoticeDtoByCourse(Long courseId);
 }

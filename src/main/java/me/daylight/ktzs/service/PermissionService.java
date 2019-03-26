@@ -20,4 +20,6 @@ public interface PermissionService {
     List<Permission> findPermissionsByPaths(List<String> paths);
 
     List<Permission> findNotOwnedPermissionsByRole(List<Permission> ownedPermissions);
+
+    void addAll(List<Permission> permissions);
 }

@@ -29,12 +29,9 @@ public class UploadFile {
     private String path;
 
     @CreatedDate
-    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createTime;
-
     @LastModifiedDate
     @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date updateTime;
+    private Date uploadTime;
 
     public UploadFile(){
 
@@ -79,20 +76,12 @@ public class UploadFile {
         this.path = path;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public Date getUploadTime() {
+        return uploadTime;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
-
-    public Date getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
+    public void setUploadTime(Date uploadTime) {
+        this.uploadTime = uploadTime;
     }
 
     public User getUploader() {

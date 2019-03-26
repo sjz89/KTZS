@@ -50,6 +50,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findUserById(Long id) {
+        return userRepository.getOne(id);
+    }
+
+    @Override
     public Page<User> findUsersByRole(int page,int limit,Role role) {
         Pageable pageable= PageRequest.of(page-1,limit);
         return userRepository.findUsersByRoleOrderByIdNumberAsc(pageable,role);
@@ -130,5 +135,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findUsersByRole(Long roleId) {
         return userRepository.findUsersByRoleId(roleId);
+    }
+
+    @Override
+    public List<User> findStudents(Long userId) {
+        return userRepository.findStudents(userId);
+    }
+
+    @Override
+    public Major findMajorByUserId(Long userId) {
+        return majorRepository.findMajorByUserId(userId);
     }
 }

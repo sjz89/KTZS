@@ -18,6 +18,8 @@ public interface UserService {
 
     User findUserByIdNumber(String idNumber);
 
+    User findUserById(Long id);
+
     Page<User> findUsersByRole(int page,int limit,Role role);
 
     Page<User> findUsersByRoleIsNull(int page,int limit);
@@ -45,4 +47,8 @@ public interface UserService {
     void changeUserMajor(Long userId,Long majorId);
 
     List<User> findUsersByRole(Long roleId);
+
+    List<User> findStudents(Long userId);
+
+    Major findMajorByUserId(Long userId);
 }

@@ -26,14 +26,6 @@
                 </li>
             </ul>
             <ul class="layui-nav layui-layout-right" lay-filter="layadmin-layout-right">
-                <li class="layui-nav-item" lay-unselect="" style="">
-                    <a lay-href="app/message/index.html" layadmin-event="message" lay-text="消息中心">
-                        <i class="layui-icon layui-icon-notice"></i>
-
-                        <!-- 如果有新消息，则显示小圆点 -->
-                        <span class="layui-badge-dot"></span>
-                    </a>
-                </li>
                 <li class="layui-nav-item layui-hide-xs" lay-unselect>
                     <a href="javascript:;" layadmin-event="theme">
                         <i class="layui-icon layui-icon-theme"></i>
@@ -53,18 +45,15 @@
                     <a><cite th:text="${user.name}"></cite>
                         <span class="layui-nav-more"></span></a>
                     <dl class="layui-nav-child layui-anim layui-anim-upbit">
-                        <dd style="text-align: center;"><a lay-href="/user/page/info">基本资料</a></dd>
-                        <dd style="text-align: center;"><a lay-href="/user/page/changePwd">修改密码</a></dd>
+                        <dd style="text-align: center;"><a lay-href="/user/info.html">基本资料</a></dd>
+                        <dd style="text-align: center;"><a lay-href="/user/changePwd.html">修改密码</a></dd>
                         <hr>
                         <dd layadmin-event="logout" style="text-align: center;"><a>退出</a></dd>
                     </dl>
                 </li>
 
                 <li class="layui-nav-item layui-hide-xs" lay-unselect="" style="">
-                    <a layadmin-event="about"><i class="layui-icon layui-icon-more-vertical"></i></a>
-                </li>
-                <li class="layui-nav-item layui-show-xs-inline-block layui-hide-sm" lay-unselect="">
-                    <a layadmin-event="more"><i class="layui-icon layui-icon-more-vertical"></i></a>
+                    <a ><i class="layui-icon layui-icon-more-vertical"></i></a>
                 </li>
             </ul>
         </div>
@@ -82,6 +71,12 @@
                             <cite>主页</cite>
                         </a>
                     </li>
+                    <li data-name="leaveNoteManage" class="layui-nav-item">
+                        <a lay-tips="请假申请管理" lay-href="/manage/leaveManage.html" lay-direction="2">
+                            <i class="layui-icon layui-icon-survey"></i>
+                            <cite>请假申请管理</cite>
+                        </a>
+                    </li>
                     <li data-name="attendanceRecord" class="layui-nav-item">
                         <a lay-tips="签到记录" lay-direction="2">
                             <i class="layui-icon layui-icon-log"></i>
@@ -89,70 +84,82 @@
                         </a>
                         <dl class="layui-nav-child">
                             <dd data-name="console">
-                                <a lay-href="/attendance/page/queryByCourse">按课程查询</a>
+                                <a lay-href="/attendance/queryByCourse.html">按课程查询</a>
                             </dd>
                         </dl>
                         <dl class="layui-nav-child">
                             <dd data-name="console">
-                                <a lay-href="/attendance/page/queryByStudent">按学生查询</a>
+                                <a lay-href="/attendance/queryByStudent.html">按学生查询</a>
                             </dd>
                         </dl>
                     </li>
-                    <li data-name="majorManage" class="layui-nav-item">
+                    <li data-name="studentList" class="layui-nav-item" th:if="${user.role.name=='instructor'}">
+                        <a lay-tips="本专业学生管理" lay-href="/major/studentManage.html" lay-direction="2">
+                            <i class="layui-icon layui-icon-user"></i>
+                            <cite>本专业学生管理</cite>
+                        </a>
+                    </li>
+                    <li data-name="majorManage" class="layui-nav-item" th:if="${user.role.name=='admin'}">
                         <a lay-tips="专业管理" lay-direction="2">
                             <i class="layui-icon layui-icon-flag"></i>
                             <cite>专业管理</cite>
                         </a>
                         <dl class="layui-nav-child">
                             <dd data-name="console">
-                                <a lay-href="/major/page/majorManage">专业管理</a>
+                                <a lay-href="/major/majorManage.html">专业管理</a>
                             </dd>
                         </dl>
                         <dl class="layui-nav-child">
                             <dd data-name="console">
-                                <a lay-href="/major/page/userMajorManage">用户专业管理</a>
+                                <a lay-href="/major/userMajorManage.html">用户专业管理</a>
                             </dd>
                         </dl>
                     </li>
-                    <li data-name="courseManage" class="layui-nav-item">
+                    <li data-name="courseManage" class="layui-nav-item" th:if="${user.role.name=='admin'}">
                         <a lay-tips="课程管理" lay-direction="2">
                             <i class="layui-icon layui-icon-read"></i>
                             <cite>课程管理</cite>
                         </a>
                         <dl class="layui-nav-child">
                             <dd data-name="console">
-                                <a lay-href="/course/page/courseManage">课程管理</a>
+                                <a lay-href="/course/courseManage.html">课程管理</a>
                             </dd>
                         </dl>
                         <dl class="layui-nav-child">
                             <dd data-name="console">
-                                <a lay-href="/course/page/courseStudentManage">学生选课管理</a>
+                                <a lay-href="/course/courseStudentManage.html">学生选课管理</a>
                             </dd>
                         </dl>
                     </li>
-                    <li data-name="rbac" class="layui-nav-item">
+                    <li data-name="rbac" class="layui-nav-item" th:if="${user.role.name=='admin'}">
                         <a lay-tips="用户权限管理" lay-direction="2">
-                            <i class="layui-icon layui-icon-user"></i>
+                            <i class="layui-icon layui-icon-auz"></i>
                             <cite>用户权限管理</cite>
                         </a>
                         <dl class="layui-nav-child">
                             <dd data-name="console">
-                                <a lay-href="/authority/page/userManage">用户管理</a>
+                                <a lay-href="/authority/userManage.html">用户管理</a>
                             </dd>
                         </dl>
                         <dl class="layui-nav-child">
                             <dd data-name="console">
-                                <a lay-href="/authority/page/roleManage">角色管理</a>
+                                <a lay-href="/authority/roleManage.html">角色管理</a>
                             </dd>
                         </dl>
                         <dl class="layui-nav-child">
                             <dd data-name="console">
-                                <a lay-href="/authority/page/authManage">权限管理</a>
+                                <a lay-href="/authority/authManage.html">权限管理</a>
                             </dd>
                         </dl>
                     </li>
-                    <li data-name="rbac" class="layui-nav-item">
-                        <a lay-tips="接口文档" lay-direction="2" lay-href="/authority/page/apiList">
+                    <li data-name="deviceReplaceManage" class="layui-nav-item">
+                        <a lay-tips="设备更换管理" lay-href="/manage/deviceReplace.html" lay-direction="2">
+                            <i class="layui-icon layui-icon-cellphone"></i>
+                            <cite>设备更换管理</cite>
+                        </a>
+                    </li>
+                    <li data-name="rbac" class="layui-nav-item" th:if="${user.role.name=='admin'}">
+                        <a lay-tips="接口文档" lay-direction="2" lay-href="/authority/apiList.html">
                             <i class="layui-icon layui-icon-form"></i>
                             <cite>接口文档</cite>
                         </a>

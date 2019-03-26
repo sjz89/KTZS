@@ -52,4 +52,9 @@ public class PermissionServiceImpl implements PermissionService {
         }
         return permissionRepository.findPermissionsByIdNotIn(ids);
     }
+
+    @Override
+    public void addAll(List<Permission> permissions) {
+        permissionRepository.saveAll(permissions);
+    }
 }

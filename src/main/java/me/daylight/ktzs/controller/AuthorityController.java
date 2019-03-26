@@ -4,10 +4,9 @@ import me.daylight.ktzs.annotation.ApiDoc;
 import me.daylight.ktzs.authority.Unlimited;
 import me.daylight.ktzs.model.dto.Api;
 import me.daylight.ktzs.model.dto.BaseResponse;
-import me.daylight.ktzs.model.entity.Major;
-import me.daylight.ktzs.model.entity.Permission;
-import me.daylight.ktzs.model.entity.Role;
-import me.daylight.ktzs.model.entity.User;
+import me.daylight.ktzs.model.entity.*;
+import me.daylight.ktzs.model.enums.RoleList;
+import me.daylight.ktzs.service.DeviceService;
 import me.daylight.ktzs.service.PermissionService;
 import me.daylight.ktzs.service.RoleService;
 import me.daylight.ktzs.service.UserService;
@@ -36,6 +35,9 @@ public class AuthorityController {
     private RoleService roleService;
 
     @Autowired
+    private DeviceService deviceService;
+
+    @Autowired
     private PermissionService permissionService;
 
     @ApiDoc(description = "获取全部接口信息")
@@ -45,20 +47,31 @@ public class AuthorityController {
     }
 
     @Unlimited
-    @ApiDoc(description = "用户登录")
+    @ApiDoc(description = "用户登录",role = RoleList.Unlimited)
     @PostMapping("/login")
     public BaseResponse login(String idNumber, String password){
         if (!userService.isUserExist(idNumber))
             return RetResponse.error("用户不存在");
         if (!userService.checkPassword(idNumber, password))
             return RetResponse.error("账号密码不匹配");
-        if (SessionUtil.getInstance().isUserLogin())
-            return RetResponse.success("用户已登录");
-        //todo 验证学生客户端IMEI是否匹配
         User user=userService.findUserByIdNumber(idNumber);
         //禁止客户端登陆管理员、辅导员账号
-        if (SessionUtil.getInstance().isMobile()&&user.getRole().getName().equals("admin")||user.getRole().getName().equals("instructor"))
+        if (SessionUtil.getInstance().isMobile()&&(user.getRole().getName().equals("admin")||user.getRole().getName().equals("instructor")))
             return RetResponse.error("无法在客户端登陆管理员、辅导员账号");
+        //禁止学生、教师在网页端登陆
+        if ((user.getRole().getName().equals("teacher")||user.getRole().getName().equals("student"))&&!SessionUtil.getInstance().isMobile())
+            return RetResponse.error("请在客户端登陆教师、学生账号");
+        if (user.getRole().getName().equals("student")){
+            if (!deviceService.isDeviceExist(user)) {
+                Device device=new Device();
+                device.setImei(SessionUtil.getInstance().getIMEI());
+                device.setStudent(user);
+                deviceService.save(device);
+            }
+            else if (!SessionUtil.getInstance().getIMEI().equals(deviceService.findImeiByStudent(user.getId())))
+                return RetResponse.error("Illegal Device");
+        }
+
         Permission[] permissions=roleService.findPermissionsByRole(user.getRole().getName());
         SessionUtil.getInstance().setSessionMap(user,permissions);
         //判断是否为客户端，如果是客户端则延长session过期时间
@@ -67,7 +80,7 @@ public class AuthorityController {
     }
 
     @Unlimited
-    @ApiDoc(description = "用户注册")
+    @ApiDoc(description = "用户注册",role = RoleList.Unlimited)
     @PostMapping("/register")
     public BaseResponse register(@RequestBody User user,Long majorId){
         //防止无权限用户注册管理员账号
@@ -89,7 +102,7 @@ public class AuthorityController {
     }
 
     @Unlimited
-    @ApiDoc(description = "用户登出")
+    @ApiDoc(description = "用户登出",role = RoleList.Unlimited)
     @GetMapping("/logout")
     public BaseResponse logout(){
         SessionUtil.getInstance().logout();
@@ -218,4 +231,56 @@ public class AuthorityController {
         return RetResponse.success();
     }
 
+    @ApiDoc(description = "从ApiDoc导入权限")
+    @GetMapping("/importFromApiDoc")
+    public BaseResponse importFromApiDoc(){
+        List<Permission> permissions=new ArrayList<>();
+        for (Api api:apiDoc){
+            if (api.getRole().get(0).equals(RoleList.Unlimited.name()))
+                continue;
+            Permission permission=new Permission();
+            permission.setPath(api.getUrl());
+            permission.setDescription(api.getDescription());
+            permissions.add(permission);
+        }
+        permissionService.addAll(permissions);
+        return RetResponse.success();
+    }
+
+    @ApiDoc(description = "学生申请更换绑定设备",role = RoleList.Unlimited)
+    @PostMapping("/deviceReplace")
+    @Unlimited
+    public BaseResponse deviceReplace(String imei,String idNumber){
+        User user=userService.findUserByIdNumber(idNumber);
+        if (deviceService.isDeviceReplacing(user))
+            deviceService.changeReplacedIMEI(imei,user.getId());
+        else
+            deviceService.deviceReplace(imei,user);
+        return RetResponse.success();
+    }
+
+    @ApiDoc(description = "获取更换设备请求列表",role = {RoleList.Admin,RoleList.Instructor})
+    @GetMapping("/getDeviceReplaceList")
+    public BaseResponse getDeviceReplaceList(int page,int limit){
+        Map<String,Object> objectMap=new HashMap<>();
+        Page<DeviceReplace> replaces;
+        if (SessionUtil.getInstance().getUser().getRole().getName().equals("admin"))
+            replaces=deviceService.getDeviceReplaceList(page, limit);
+        else
+            replaces=deviceService.getDeviceReplaceListByMajor(page,limit,SessionUtil.getInstance().getUser().getId());
+        objectMap.put("list",replaces.getContent());
+        objectMap.put("count",replaces.getTotalElements());
+        return RetResponse.success(objectMap);
+    }
+
+    @ApiDoc(description = "更改设备更换申请状态",role = {RoleList.Admin,RoleList.Instructor})
+    @PostMapping("/changeDeviceReplaceState")
+    public BaseResponse changeDeviceReplaceState(int state,Long id){
+        deviceService.changeReplaceState(state, id);
+        if (state==1) {
+            DeviceReplace deviceReplace=deviceService.getDeviceReplac(id);
+            deviceService.changeIMEI(deviceReplace.getImei(),deviceReplace.getStudent().getId());
+        }
+        return RetResponse.success();
+    }
 }

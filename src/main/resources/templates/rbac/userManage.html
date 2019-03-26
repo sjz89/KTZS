@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理</title>
+    <link rel="stylesheet" href="/static/assets/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/static/assets/style/admin.css" media="all">
+    <style type="text/css">
+        .layui-layer-page .layui-layer-content {overflow: inherit !important;}
+    </style>
+</head>
+<body layadmin-themealias="default">
+<div class="layui-fluid">
+    <div class="layui-card">
+        <form class="layui-form layui-form-pane layui-card-header layuiadmin-card-header-auto">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">用户角色</label>
+                    <div class="layui-input-inline">
+                        <select id="roleSelector" name="role" lay-search="" lay-filter="role" >
+                            <option th:each="role,iterStat:${roleList}" th:value="${role.id}" th:selected="${iterStat.index==0}" th:text="${role.name}"></option>
+                            <option value="0">未分配</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="layui-card-body">
+            <table id="table" lay-filter="table"></table>
+        </div>
+
+    </div>
+</div>
+
+<div id="addUserModel" style="display: none;margin: 20px;" align="center">
+    <form class="layui-form layui-form-pane">
+        <div class="layui-form-item">
+            <label class="layui-form-label">学号/工号</label>
+            <div class="layui-input-inline">
+                <input name="idNumber" class="layui-input" type="text" placeholder="请输入学号/工号" lay-verify="required">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">姓名</label>
+            <div class="layui-input-inline">
+                <input name="name" class="layui-input" type="text" placeholder="请输入姓名" lay-verify="required">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-inline">
+                <input name="password" class="layui-input" type="password" placeholder="请输入密码" lay-verify="required">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">手机</label>
+            <div class="layui-input-inline">
+                <input name="phone" class="layui-input" type="tel" placeholder="请输入手机号码">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">角色</label>
+            <div class="layui-input-inline">
+                <select name="role" lay-verify="required" lay-search="" class="layui-input">
+                    <option value="">请选择或输入角色</option>
+                    <option th:each="role:${roleList}" th:value="${role.id}" th:text="${role.name}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <button class="layui-btn" lay-filter="addUser" lay-submit>提交</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="setRoleModel" style="display: none;margin: 20px;" align="center">
+    <form class="layui-form layui-form-pane" lay-filter="setRoleForm">
+        <div class="layui-form-item">
+            <label class="layui-form-label">角色</label>
+            <div class="layui-input-inline">
+                <select name="role" lay-verify="required" lay-search="" class="layui-input">
+                    <option th:each="role:${roleList}" th:value="${role.id}" th:text="${role.name}"></option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <button class="layui-btn" lay-filter="setRole" lay-submit>提交</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script type="text/html" id="toolbar">
+    <a class="layui-btn layui-btn-sm" lay-event="addUser">添加用户</a>
+</script>
+
+<script type="text/html" id="bar">
+    <a class="layui-btn layui-btn-xs" lay-event="setRole">设置角色</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+<script src="/static/assets/layui/layui.js"></script>
+<script src="/static/js/notice.js"></script>
+<script src="/static/js/ajax.js"></script>
+<script>
+    layui.use(['table', 'jquery', 'layer', 'form'], function () {
+        var $ = layui.$,
+            table = layui.table,
+            layer = layui.layer,
+            form = layui.form;
+
+        var tableIns = table.render({
+            elem: '#table',
+            height: 'full-160',
+            toolbar:'#toolbar',
+            defaultToolbar: ['print', 'exports'],
+            cols: [
+                [
+                    {field:'id',title:'ID',sort:true},
+                    {field: 'idNumber', title: '学号/工号', sort: true},
+                    {field: 'name', title: "姓名"},
+                    {field: 'phone',title: '手机号'},
+                    {field: 'createTime', title: "创建时间", sort: true},
+                    {field: 'updateTime', title: "更新时间", sort: true},
+                    {title: '操作', align: 'center', width: '10%', toolbar: '#bar'}
+                ]
+            ],
+            text: {
+                none: '暂无相关数据'
+            },
+            page: true,
+            limit: 15,
+            limits: [15, 30, 45, 60, 75, 90],
+            url: "/authority/getUsersByRole",
+            where: {id: $('#roleSelector  option:selected').val()},
+            response: {
+                statusCode: 200
+            },
+            parseData: function (res) {
+                return {
+                    "code": res.code,
+                    "data": res.data.list,
+                    "count": res.data.count
+                };
+            }
+        });
+
+        table.on('tool(table)', function (obj) {
+            var data = obj.data;
+            switch (obj.event) {
+                case 'del':
+                    layer.confirm('真的删除么',{title:'删除用户',shadeClose:true}, function (index) {
+                        layer.close(index);
+                        $.post('/authority/delUser',{
+                            id: data.id,
+                            idNumber: data.idNumber
+                        },function (res) {
+                            if (res.code === 200) {
+                                obj.del();
+                                notice_success('删除成功');
+                            } else {
+                                notice_error(res.msg);
+                            }
+                        });
+                    });
+                    break;
+                case 'setRole':
+                    layer.open({
+                        type: 1,
+                        title: '设置角色',
+                        content: $('#setRoleModel'),
+                        shadeClose: true,
+                        success: function (layero, index) {
+                            form.val('setRoleForm',{
+                                role:data.role.id
+                            });
+                            form.on('submit(setRole)',function (data) {
+                                $.post('/authority/setRole',{idNumber:obj.data.idNumber,roleId:data.field.role},function (res) {
+                                    if (res.code===200){
+                                        notice_success('角色设置成功');
+                                        tableIns.reload();
+                                    }else
+                                        notice_error(res.msg);
+                                });
+                                layer.close(index);
+                                return false;
+                            })
+                        }
+                    });
+                    break;
+            }
+        });
+
+        table.on('toolbar(table)',function (obj) {
+            var data = obj.data;
+            switch (obj.event) {
+                case 'addUser':
+                    layer.open({
+                        type:1,
+                        title:'添加用户',
+                        content:$('#addUserModel'),
+                        shadeClose:true,
+                        success:function (layero, index) {
+                            form.on('submit(addUser)',function (data) {
+                                var user={
+                                    idNumber:data.field.idNumber,
+                                    name:data.field.name,
+                                    password:data.field.password,
+                                    role:{id:data.field.role}
+                                };
+                                ajax_post_json('/authority/register',JSON.stringify(user),function (res) {
+                                    if (res.code===200){
+                                        notice_success('添加用户成功');
+                                        tableIns.reload();
+                                    }else
+                                        notice_error(res.msg);
+                                });
+                                layer.close(index);
+                                return false;
+                            });
+                        }
+                    });
+                    break;
+            }
+        });
+
+        form.on('select(role)', function (data) {
+            tableIns.reload({
+                where: {id: $('#roleSelector  option:selected').val()}
+            });
+        })
+    })
+</script>
+</body>
+</html>

@@ -64,6 +64,8 @@ public class WebSocketServer {
             if (webSocketServer.redisTemplate.opsForHash().hasKey(Notice_Offline_Table,idNumber)){
                 LinkedList<Long> offlineNoticeList=(LinkedList<Long>)webSocketServer.redisTemplate.opsForHash().get(Notice_Offline_Table,idNumber);
                 List<Long> readNoticeList=(List<Long>)webSocketServer.redisTemplate.opsForHash().get(Notice_Read_Table,idNumber);
+                if (readNoticeList==null)
+                    readNoticeList=new LinkedList<>();
                 while (!offlineNoticeList.isEmpty()) {
                     Long noticeId=offlineNoticeList.poll();
                     if (!readNoticeList.contains(noticeId)) {
@@ -116,7 +118,7 @@ public class WebSocketServer {
         switch (channel){
             case Channel_SignInCount:
                 if (signInCountSessionMap.containsKey(msg.getReceiverIdList().get(0)))
-                    signInCountSessionMap.get(msg.getReceiverIdList().get(0)).getBasicRemote().sendText(msg.getData().toString());
+                    signInCountSessionMap.get(msg.getReceiverIdList().get(0)).getBasicRemote().sendText(JSONObject.toJSONString(msg.getData()));
                 break;
             case Channel_Notice:
                 Notice notice=(Notice)msg.getData();

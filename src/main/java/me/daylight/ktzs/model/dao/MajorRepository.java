@@ -32,4 +32,8 @@ public interface MajorRepository extends JpaRepository<Major,Long> {
 
     @Query(value = "select major_users.users_id from major_users",nativeQuery = true)
     List<Long> findUserIds();
+
+    @Query(value = "select * from major where major.id=(select major_id from major_users where users_id=?1)",
+            nativeQuery = true)
+    Major findMajorByUserId(Long id);
 }

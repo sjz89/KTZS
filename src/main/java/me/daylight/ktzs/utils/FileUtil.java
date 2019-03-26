@@ -4,11 +4,10 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.*;
 import java.util.Objects;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Daylight
@@ -22,6 +21,8 @@ public class FileUtil {
 
     /** 静态目录 **/
     public static String staticDir = "static/upload/";
+
+    private static final int BUFFER = 8192;
 
     public static void upload(MultipartFile file, String targetPath, String fileName) throws IOException {
         //第一次会创建文件夹
@@ -108,6 +109,68 @@ public class FileUtil {
                 delAllFile(path + "/" + aTempList);//先删除文件夹里面的文件
                 delFolder(path + "/" + aTempList);//再删除空文件夹
             }
+        }
+    }
+
+    public static void compress(String srcPath , String dstPath) throws IOException{
+        createDirIfNotExists(srcPath);
+        File srcFile = new File(absolutePath,staticDir+srcPath);
+        File dstFile = new File(absolutePath,staticDir+dstPath);
+        if (!srcFile.exists()) {
+            throw new FileNotFoundException(srcPath + "不存在！");
+        }
+
+        FileOutputStream out = null;
+        ZipOutputStream zipOut = null;
+        try {
+            out = new FileOutputStream(dstFile);
+            zipOut = new ZipOutputStream(out);
+            String baseDir = "";
+            compress(srcFile, zipOut, baseDir);
+        }
+        finally {
+            if(null != zipOut){
+                zipOut.close();
+                out = null;
+            }
+
+            if(null != out){
+                out.close();
+            }
+        }
+    }
+
+    private static void compress(File file, ZipOutputStream zipOut, String baseDir) throws IOException{
+        if (file.isDirectory()) {
+            compressDirectory(file, zipOut, baseDir);
+        } else {
+            compressFile(file, zipOut, baseDir);
+        }
+    }
+
+    /** 压缩一个目录 */
+    private static void compressDirectory(File dir, ZipOutputStream zipOut, String baseDir) throws IOException{
+        File[] files = dir.listFiles();
+        for (File file : Objects.requireNonNull(files)) {
+            compress(file, zipOut, baseDir + dir.getName() + "/");
+        }
+    }
+
+    /** 压缩一个文件 */
+    private static void compressFile(File file, ZipOutputStream zipOut, String baseDir)  throws IOException {
+        if (!file.exists()){
+            return;
+        }
+
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
+            ZipEntry entry = new ZipEntry(baseDir + file.getName());
+            zipOut.putNextEntry(entry);
+            int count;
+            byte[] data = new byte[BUFFER];
+            while ((count = bis.read(data, 0, BUFFER)) != -1) {
+                zipOut.write(data, 0, count);
+            }
+
         }
     }
 }

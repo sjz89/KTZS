@@ -43,4 +43,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Query(value = "select * from user where role_id=(select role.id from role where role.name='student') and user.id not in " +
             "(select course_students.students_id from course_students where course_id=?1)",nativeQuery = true)
     List<User> findStudentUnChoose(Long courseId);
+
+    @Query(value = "select * from user where role_id=(select role.id from role where role.name='student') and id in " +
+            "(select users_id from major_users where major_id=(select major_id from major_users where users_id=?1)) order by id_number",nativeQuery = true)
+    List<User> findStudents(Long userId);
 }
