@@ -72,6 +72,13 @@ public class PageController {
         return "common/home";
     }
 
+    @ApiDoc(description = "app下载页面",role = RoleList.Unlimited)
+    @Unlimited
+    @GetMapping("/app")
+    public String appPage(){
+        return "common/apk";
+    }
+
     @ApiDoc(description = "登陆页面",role = RoleList.Unlimited)
     @Unlimited
     @GetMapping("/login")
