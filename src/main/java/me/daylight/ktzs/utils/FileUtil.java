@@ -20,7 +20,7 @@ public class FileUtil {
     public static String absolutePath = "";
 
     /** 静态目录 **/
-    public static String staticDir = "static/upload/";
+    public static String staticDir = "upload/";
 
     private static final int BUFFER = 8192;
 

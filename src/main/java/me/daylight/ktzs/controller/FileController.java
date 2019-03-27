@@ -114,7 +114,6 @@ public class FileController {
     }
 
     @ApiDoc(description = "下载文件",role = RoleList.Teacher)
-    @Unlimited
     @RequestMapping("/{id:.+}")
     public ResponseEntity<FileSystemResource> download(@PathVariable long id) {
         if (fileService.isFileExist(id)) {

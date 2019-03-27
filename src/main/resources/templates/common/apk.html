@@ -53,7 +53,7 @@
         <div class="row">
             <div class="col-sm-12 col-md-12 col-lg-12">
                 <img src="/static/assets/img/logo.png" alt="KTZS Logo">
-                <h1>课  堂  助  手</h1>
+                <h1>课  堂  助  手  APP</h1>
                 <br>
                 <form class="form-inline validate signup" role="form">
                     <input type="button" name="subscribe" value="点击获取App" class="btn btn-theme" onclick="download()">
@@ -112,7 +112,7 @@
 
     function download() {
         var $eleForm = $("<form method='get'></form>");
-        $eleForm.attr("action",window.location.href.split('/')[0]+'/static/apk/KTZS.apk');
+        $eleForm.attr("action",window.location.href.split('/')[0]+'/app/download');
         $(document.body).append($eleForm);
         $eleForm.submit();
     }
