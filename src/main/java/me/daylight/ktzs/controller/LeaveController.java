@@ -77,6 +77,8 @@ public class LeaveController {
             leaveNotePage=leaveService.getAllLeaveNote(page, limit);
         else
             leaveNotePage=leaveService.getLeaveNoteByMajor(SessionUtil.getInstance().getUser().getId(),page,limit);
+        for (LeaveNote leaveNote:leaveNotePage.getContent())
+            leaveNote.getStudent().setRole(null);
         Map<String,Object> map=new HashMap<>();
         map.put("count",leaveNotePage.getTotalElements());
         map.put("list",leaveNotePage.getContent());

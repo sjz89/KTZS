@@ -6,6 +6,7 @@ import me.daylight.ktzs.authority.Unlimited;
 import me.daylight.ktzs.model.dto.BaseResponse;
 import me.daylight.ktzs.model.entity.Course;
 import me.daylight.ktzs.model.entity.Homework;
+import me.daylight.ktzs.model.entity.UploadFile;
 import me.daylight.ktzs.model.enums.RoleList;
 import me.daylight.ktzs.service.CourseService;
 import me.daylight.ktzs.service.HomeworkService;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -70,7 +72,15 @@ public class HomeworkController {
     @ApiDoc(description = "查询我的所有作业",role = {RoleList.Student,RoleList.Teacher})
     @GetMapping("/findAllOfMe")
     public BaseResponse findHomeworkOfStudent(){
-        return RetResponse.success(homeworkService.findAllOfMe(SessionUtil.getInstance().getUser().getId()));
+        List<Homework> homeworkList=homeworkService.findAllOfMe(SessionUtil.getInstance().getUser().getId());
+        for (Homework homework:homeworkList){
+            homework.getCourse().setStudents(null);
+            homework.getCourse().setTeacher(null);
+            homework.getCourse().setMajor(null);
+            homework.setFiles(null);
+            homework.setContent(null);
+        }
+        return RetResponse.success(homeworkList);
     }
 
     @ApiDoc(description = "获取作业详情",role = {RoleList.Teacher,RoleList.Student})
@@ -86,7 +96,10 @@ public class HomeworkController {
     public BaseResponse getFileListOfHomework(Long id){
         if (!homeworkService.isHomeworkExist(id))
             return RetResponse.error("作业不存在");
-        return RetResponse.success(homeworkService.getFileListOfHomework(id));
+        List<UploadFile> files=homeworkService.getFileListOfHomework(id);
+        for (UploadFile file:files)
+            file.getUploader().setRole(null);
+        return RetResponse.success(files);
     }
 
     @ApiDoc(description = "开启电脑端上传下载文件",role = {RoleList.Teacher,RoleList.Student})

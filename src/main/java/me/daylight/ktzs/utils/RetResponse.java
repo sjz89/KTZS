@@ -2,6 +2,7 @@ package me.daylight.ktzs.utils;
 
 import me.daylight.ktzs.model.dto.BaseResponse;
 import me.daylight.ktzs.model.entity.User;
+import org.springframework.data.domain.Page;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,5 +53,12 @@ public class RetResponse {
         map.put("phone",user.getPhone());
         map.put("role",user.getRole().getName());
         return map;
+    }
+
+    public static Map<String,Object> pageResult(Page page){
+        Map<String,Object> resultMap=new HashMap<>();
+        resultMap.put("list",page.getContent());
+        resultMap.put("count",page.getTotalElements());
+        return resultMap;
     }
 }

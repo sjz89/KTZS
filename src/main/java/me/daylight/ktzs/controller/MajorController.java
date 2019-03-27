@@ -78,6 +78,9 @@ public class MajorController {
             return RetResponse.error("专业不存在");
         Major major=userService.findMajorById(majorId);
         List<User> users=major.getUsers();
+        for (User user:users){
+            user.getRole().setPermissions(null);
+        }
         users.sort(Comparator.comparing(User::getIdNumber));
         /*java list sort lambda表达式
         原式如下

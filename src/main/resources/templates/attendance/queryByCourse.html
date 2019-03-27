@@ -51,7 +51,7 @@
                     {field:'id',title:'ID',sort:true,width:'10%'},
                     {field: 'uniqueId', title: '签到码', sort: true},
                     {field: 'student', title: "学生姓名",templet:function(d){
-                        return d.student.name;
+                        return d.student.name+'('+d.student.idNumber+')';
                         }},
                     {field:'state',title:'签到状态',sort:true,templet:function(d){
                         return d.state===0?'未签到':'已签到';

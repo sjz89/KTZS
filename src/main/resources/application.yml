@@ -3,7 +3,7 @@ spring:
     username: root
     password: Super9689
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/ktzs?useSSL=false&characterEncoding=utf-8&serverTimezone=Hongkong
+    url: jdbc:mysql://47.102.129.149:3306/ktzs?useSSL=false&characterEncoding=utf-8&serverTimezone=Hongkong
     name: ktzs
   thymeleaf:
     cache: false
@@ -20,8 +20,9 @@ spring:
     show-sql: false
     open-in-view: true
   redis:
-    host: localhost
+    host: 47.102.129.149
     port: 6379
+    password: Super9689
   session:
     store-type: redis
     timeout: 1800

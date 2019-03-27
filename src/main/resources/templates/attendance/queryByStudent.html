@@ -50,7 +50,7 @@
                     {field:'id',title:'ID',sort:true,width:'10%'},
                     {field: 'uniqueId', title: '签到码', sort: true},
                     {field: 'student', title: "学生姓名",templet:function(d){
-                            return d.student.name;
+                            return d.student.name+'('+d.student.idNumber+')';
                         }},
                     {field:'course',title:'课程名称',sort:true,templet:function(d){
                         return d.course.name

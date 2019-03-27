@@ -85,6 +85,11 @@ public class CourseController {
     @GetMapping("/getCoursesBySemester")
     public BaseResponse getAllCourse(String semester,int page,int limit){
         Page<Course> courses=courseService.getAllCourse(semester,page, limit);
+        for (Course course:courses.getContent()){
+            course.getMajor().setUsers(null);
+            course.getTeacher().setRole(null);
+            course.setStudents(Arrays.asList(new User[course.getStudents().size()]));
+        }
         Map<String,Object> objectMap=new HashMap<>();
         objectMap.put("list",courses.getContent());
         objectMap.put("count",courses.getTotalElements());

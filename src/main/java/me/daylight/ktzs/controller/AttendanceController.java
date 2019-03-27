@@ -163,15 +163,12 @@ public class AttendanceController {
     @ApiDoc(description = "获取全部签到记录",role = {RoleList.Admin,RoleList.Instructor})
     @GetMapping("/getAll")
     public BaseResponse getAllAttendanceRecord(int page,int limit){
-        Map<String,Object> resultMap=new HashMap<>();
         Page<Attendance> attendances;
         if (SessionUtil.getInstance().getUser().getRole().getName().equals("admin"))
             attendances=attendanceService.findAllPageable(page,limit);
         else
             attendances=attendanceService.findAllByMajorPageable(SessionUtil.getInstance().getUser().getId(),page,limit);
-        resultMap.put("list",attendances.getContent());
-        resultMap.put("count",attendances.getTotalElements());
-        return RetResponse.success(resultMap);
+        return RetResponse.success(getAttendanceRecord(attendances));
     }
 
     @ApiDoc(description = "根据课程查询签到记录",role = {RoleList.Admin,RoleList.Instructor})
@@ -179,11 +176,8 @@ public class AttendanceController {
     public BaseResponse getAttendanceByCourse(Course course,int page,int limit){
         if (!courseService.isCourseExist(course.getId()))
             return RetResponse.error("课程不存在");
-        Map<String,Object> resultMap=new HashMap<>();
         Page<Attendance> attendances=attendanceService.findByCourse(course, page,limit);
-        resultMap.put("list",attendances.getContent());
-        resultMap.put("count",attendances.getTotalElements());
-        return RetResponse.success(resultMap);
+        return RetResponse.success(getAttendanceRecord(attendances));
     }
 
     @ApiDoc(description = "根据学生查询签到记录",role = {RoleList.Admin,RoleList.Instructor})
@@ -191,11 +185,22 @@ public class AttendanceController {
     public BaseResponse getAttendanceByStudent(String idNumber,int page,int limit){
         if (!userService.isUserExist(idNumber))
             return RetResponse.error("账号不存在");
-        Map<String,Object> resultMap=new HashMap<>();
         Page<Attendance> attendances=attendanceService.findByStudentPageable(userService.findUserByIdNumber(idNumber),page,limit);
-        resultMap.put("list",attendances.getContent());
-        resultMap.put("count",attendances.getTotalElements());
-        return RetResponse.success(resultMap);
+
+        return RetResponse.success(getAttendanceRecord(attendances));
+    }
+
+    private Map<String,Object> getAttendanceRecord(Page<Attendance> attendances){
+        for (Attendance attendance:attendances.getContent()){
+            attendance.getCourse().setStudents(null);
+            attendance.getCourse().setTeacher(null);
+            attendance.getCourse().setMajor(null);
+            attendance.getStudent().setRole(null);
+            attendance.getStudent().setPassword(null);
+            attendance.getStudent().setCreateTime(null);
+            attendance.getStudent().setUpdateTime(null);
+        }
+        return RetResponse.pageResult(attendances);
     }
 
     @ApiDoc(description = "根据课程获取最近一次签到情况",role = {RoleList.Teacher,RoleList.Student})

@@ -129,6 +129,8 @@ public class AuthorityController {
             users=userService.findUsersByRoleIsNull(page, limit);
         }else
             users=userService.findUsersByRole(page, limit, role);
+        for (User user:users)
+            user.setRole(null);
         objectMap.put("list",users.getContent());
         objectMap.put("count",users.getTotalElements());
         return RetResponse.success(objectMap);
@@ -268,6 +270,9 @@ public class AuthorityController {
             replaces=deviceService.getDeviceReplaceList(page, limit);
         else
             replaces=deviceService.getDeviceReplaceListByMajor(page,limit,SessionUtil.getInstance().getUser().getId());
+        for (DeviceReplace deviceReplace:replaces.getContent()){
+            deviceReplace.getStudent().setRole(null);
+        }
         objectMap.put("list",replaces.getContent());
         objectMap.put("count",replaces.getTotalElements());
         return RetResponse.success(objectMap);
