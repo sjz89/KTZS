@@ -53,37 +53,41 @@
 <script src="/static/assets/layui/layui.js"></script>
 <script src="/static/js/notice.js"></script>
 <script>
-    layui.use(['jquery', 'form', 'upload'], function () {
+    layui.use(['jquery', 'form', 'upload','layer'], function () {
         var $ = layui.$;
         var form = layui.form;
         var upload = layui.upload;
+        var layer=layui.layer;
+        var index;
 
         var randomCode=$("#randomCode");
         randomCode.blur(function(){
             upload.render({
                 elem: '#upload-file'
-                , url: '/file/uploadWithRandomCode'
+                , url: '/file/upload/'+randomCode.val()
                 , accept: 'file'
                 , auto: false
                 , bindAction: '#upload'
-                , data: {
-                    randomCode: randomCode.val()
-                }
                 , choose: function (obj) {
                     obj.preview(function (index, file, result) {
                         $('#file').val(file.name);
                     })
                 }
                 , done: function (res) {
+                    layer.close(index);
                     if (res.code === 200)
                         notice_success('上传成功');
                     else
                         notice_error(res.msg);
                 }
+                ,error :function(){
+                    layer.close(index);
+                }
             });
         });
 
         form.on('submit(upload)', function (data) {
+            index=layer.load(1);
             return false;
         })
     });

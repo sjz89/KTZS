@@ -43,10 +43,7 @@
         form.on('submit(download)', function (data) {
             $.get('/homework/checkRandomCode',{randomCode:data.field.randomCode},function(res){
                 if (res.code===200){
-                    var $eleForm = $("<form method='get'></form>");
-                    $eleForm.attr("action",window.location.href.split('/')[0]+'/file/homework/'+res.data.homeworkId);
-                    $(document.body).append($eleForm);
-                    $eleForm.submit();
+                    window.open(window.location.origin+ '/file/download/homework/'+res.data.homeworkId+'?code='+data.field.randomCode);
                 }else
                     notice_error(res.msg);
             });

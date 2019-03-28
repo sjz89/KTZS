@@ -75,6 +75,7 @@ public class FileController {
             myFile = homeworkService.findFileByUploaderAndHomework(loginUser.getId(), homeworkId);
             FileUtil.delete(myFile.getPath()+myFile.getUUIDName());
             myFile.setFileName(fileName);
+            myFile.setUUIDName(uuidName);
         }else
             myFile=new UploadFile(loginUser,fileName,uuidName,path.toString());
         FileUtil.upload(file,path.toString(),uuidName);
@@ -87,10 +88,10 @@ public class FileController {
 
     @SuppressWarnings("ConstantConditions")
     @ApiDoc(description = "根据上传码上传文件",role = RoleList.Unlimited)
-    @PostMapping("/uploadWithRandomCode")
+    @PostMapping("/upload/{randomCode}")
     @ResponseBody
     @Unlimited
-    public BaseResponse uploadWithRandomCode(String randomCode,@RequestParam MultipartFile file) throws IOException{
+    public BaseResponse uploadWithRandomCode(@PathVariable String randomCode,@RequestParam MultipartFile file) throws IOException{
         if (!redisTemplate.hasKey(randomCode))
             return RetResponse.error("文件码不存在");
         Map map=redisTemplate.opsForHash().entries(randomCode);
@@ -114,7 +115,7 @@ public class FileController {
     }
 
     @ApiDoc(description = "下载文件",role = RoleList.Teacher)
-    @RequestMapping("/{id:.+}")
+    @RequestMapping("/download/{id:.+}")
     public ResponseEntity<FileSystemResource> download(@PathVariable long id) {
         if (fileService.isFileExist(id)) {
             UploadFile myFile = fileService.getFile(id);
@@ -136,10 +137,13 @@ public class FileController {
         return ResponseEntity.notFound().build();
     }
 
+    @SuppressWarnings("ConstantConditions")
     @ApiDoc(description = "将作业文件打包下载",role = RoleList.Unlimited)
     @Unlimited
-    @RequestMapping("/homework/{id}")
-    public ResponseEntity<FileSystemResource> downloadZip(@PathVariable long id) throws IOException {
+    @RequestMapping("/download/homework/{id}")
+    public ResponseEntity<FileSystemResource> downloadZip(String code,@PathVariable long id) throws IOException {
+        if (!redisTemplate.hasKey(code)||code==null)
+            return ResponseEntity.notFound().build();
         if (homeworkService.isHomeworkExist(id)){
             String name=homeworkService.findById(id).get("name")+".zip";
             FileUtil.compress(id+"/",name);
