@@ -99,11 +99,11 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public List<Course> findCoursesBySemesterAndWeekDay(String semester, String weekDay) {
-        return courseRepository.findAllBySemesterAndTimeLike(semester,weekDay);
+        return courseRepository.findAllBySemesterAndTimeLikeOrderByTime(semester,weekDay);
     }
 
     @Override
     public List<Course> findCoursesBySemesterAndWeekDayAndMajor(String semester, String weekDay, Major major) {
-        return courseRepository.findAllBySemesterAndTimeLikeAndMajor(semester, weekDay, major);
+        return courseRepository.findAllBySemesterAndTimeLikeAndMajorOrderByTime(semester, weekDay, major);
     }
 }

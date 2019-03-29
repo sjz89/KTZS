@@ -145,7 +145,14 @@ public class CourseController {
     public BaseResponse findStudentUnChoose(Long courseId){
         if (!courseService.isCourseExist(courseId))
             return RetResponse.error("课程不存在");
-        return RetResponse.success(courseService.findStudentUnChooseCourse(courseId));
+        List<User> students=courseService.findStudentUnChooseCourse(courseId);
+        for (User student:students){
+            student.setRole(null);
+            student.setUpdateTime(null);
+            student.setCreateTime(null);
+            student.setPassword(null);
+        }
+        return RetResponse.success(students);
     }
 
     @ApiDoc(description = "获取今日课表",role = {RoleList.Admin,RoleList.Instructor})

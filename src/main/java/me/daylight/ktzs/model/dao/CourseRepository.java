@@ -36,7 +36,7 @@ public interface CourseRepository extends JpaRepository<Course,Long> {
 
     List<Course> findCoursesByMajor(Major major);
 
-    List<Course> findAllBySemesterAndTimeLike(String semester,String weekDay);
+    List<Course> findAllBySemesterAndTimeLikeOrderByTime(String semester, String weekDay);
 
-    List<Course> findAllBySemesterAndTimeLikeAndMajor(String semester,String weekDay,Major major);
+    List<Course> findAllBySemesterAndTimeLikeAndMajorOrderByTime(String semester, String weekDay, Major major);
 }
