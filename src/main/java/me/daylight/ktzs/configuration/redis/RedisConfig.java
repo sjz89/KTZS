@@ -66,9 +66,9 @@ public class RedisConfig extends CachingConfigurerSupport {
     public RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(messageListener, new PatternTopic("__keyevent@0__:expired"));
-        container.addMessageListener(signInListener,new PatternTopic(Redis_Channel_SignInCount));
-        container.addMessageListener(noticePushListener,new PatternTopic(Redis_Channel_Notice));
+        container.addMessageListener(messageListener, new PatternTopic("__keyevent@0__:expired"));  //过期事件
+        container.addMessageListener(signInListener,new PatternTopic(Redis_Channel_SignInCount));   //学生签到事件
+        container.addMessageListener(noticePushListener,new PatternTopic(Redis_Channel_Notice));    //消息推送事件
         return container;
     }
 
