@@ -100,7 +100,6 @@ public class WebSocketServer {
      */
     @OnMessage
     public void onMessage(String message, Session session) throws IOException {
-//        logger.info(message);
         if (message.equals("0x00"))
             session.getBasicRemote().sendText("0x01");
     }

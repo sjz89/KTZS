@@ -3,6 +3,8 @@ package me.daylight.ktzs.authority;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import me.daylight.ktzs.model.dto.BaseResponse;
 import me.daylight.ktzs.utils.RetResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.method.HandlerMethod;
@@ -22,11 +24,28 @@ public class AuthorityInterceptor implements HandlerInterceptor {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private static Logger logger= LoggerFactory.getLogger(AuthorityInterceptor.class);
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String requestUrl=request.getRequestURI();
 
         AntPathMatcher pathMatcher=new AntPathMatcher();
+        //检查url是否为静态资源文件
+        if (pathMatcher.match("/static/**",requestUrl))
+            return true;
+
+        String ipAddress=request.getHeader("X-Real-IP");
+        if (ipAddress==null)
+            ipAddress=request.getRemoteAddr();
+        logger.info("-------------------------------------------------------------------------------------");
+        logger.info("-->URL:" + request.getRequestURI());
+        logger.info("-->HTTP_METHOD:" + request.getMethod());
+        logger.info("-->IP:" + ipAddress);
+        logger.info("-->SERVER_PORT:" + request.getServerPort());
+        logger.info("-->USER:" + (SessionUtil.getInstance().getIdNumber()));
+        logger.info("-->SESSION:" + request.getSession().getId());
+        logger.info("-------------------------------------------------------------------------------------");
 
         HandlerMethod handlerMethod=null;
         if (handler instanceof HandlerMethod)
@@ -44,10 +63,6 @@ public class AuthorityInterceptor implements HandlerInterceptor {
 
             return true;
         }
-
-        //检查url是否为静态资源文件
-        if (pathMatcher.match("/static/**",requestUrl))
-            return true;
 
         //检查是否登录
         if (SessionUtil.getInstance().isUserLogin()){

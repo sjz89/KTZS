@@ -83,9 +83,11 @@ public class SessionUtil {
         return getHttpRequest().getHeader("imei")==null?"":getHttpRequest().getHeader("imei");
     }
 
-    public void setMobileSessionTimeout(){
+    public void setSessionTimeout(){
         if (isMobile())
             getHttpSession().setMaxInactiveInterval(60*60);
+        else
+            getHttpSession().setMaxInactiveInterval(20*60);
     }
 
     public void logout(){

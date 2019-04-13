@@ -177,8 +177,8 @@
                             form.val('setRoleForm',{
                                 role:data.role.id
                             });
-                            form.on('submit(setRole)',function (data) {
-                                $.post('/authority/setRole',{idNumber:obj.data.idNumber,roleId:data.field.role},function (res) {
+                            form.on('submit(setRole)',function (formData) {
+                                $.post('/authority/setRole',{idNumber:obj.data.idNumber,roleId:formData.field.role},function (res) {
                                     if (res.code===200){
                                         notice_success('角色设置成功');
                                         tableIns.reload();
@@ -209,7 +209,8 @@
                                     idNumber:data.field.idNumber,
                                     name:data.field.name,
                                     password:data.field.password,
-                                    role:{id:data.field.role}
+                                    role:{id:data.field.role},
+                                    phone:data.field.phone
                                 };
                                 ajax_post_json('/authority/register',JSON.stringify(user),function (res) {
                                     if (res.code===200){
